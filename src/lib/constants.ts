@@ -31,6 +31,57 @@ export const PRODUCT_CATEGORIES = [
   "LEED Certified",
 ];
 
+export const PRODUCT_APPLICATIONS = [
+  "All Applications",
+  "Commercial Fit-Out",
+  "Residential",
+  "Wet Area / Kitchen",
+  "Acoustic Ceiling",
+  "Structural / Flooring",
+  "LEED Project",
+  "Fire-Rated Zone",
+];
+
+export const PAYMENT_TERMS = [
+  "Net 30",
+  "Net 45",
+  "Net 60",
+  "LC 60 Days",
+  "LC 90 Days",
+  "Advance Payment",
+  "Open Credit",
+];
+
+export const GCC_DESTINATIONS = [
+  "Dubai, UAE",
+  "Abu Dhabi, UAE",
+  "Sharjah, UAE",
+  "Ajman, UAE",
+  "Riyadh, KSA",
+  "Jeddah, KSA",
+  "Dammam, KSA",
+  "Doha, Qatar",
+  "Kuwait City, Kuwait",
+  "Muscat, Oman",
+  "Manama, Bahrain",
+];
+
+export const VAT_RATES: Record<string, number> = {
+  UAE: 0.05,
+  KSA: 0.15,
+  Qatar: 0,
+  Oman: 0.05,
+  Kuwait: 0,
+  Bahrain: 0.1,
+};
+
+export const ECO_MILES_TIERS = {
+  Bronze: { min: 0, max: 4999, color: "#CD7F32", pointsPerAED: 1 },
+  Silver: { min: 5000, max: 14999, color: "#C0C0C0", pointsPerAED: 1.25 },
+  Gold: { min: 15000, max: 49999, color: "#C9A84C", pointsPerAED: 1.5 },
+  Platinum: { min: 50000, max: Infinity, color: "#E5E4E2", pointsPerAED: 2 },
+};
+
 export const MOCK_NOTIFICATIONS = [
   {
     id: 1,

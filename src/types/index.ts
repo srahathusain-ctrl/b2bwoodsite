@@ -24,12 +24,26 @@ export interface Product {
   certifications: string[];
   description?: string;
   image?: string;
+  moq: number;
+  leadDays: number;
+  application: string[];
+  volumePricing: VolumePrice[];
+  density?: string;
+  fireRating?: string;
+  tdsAvailable: boolean;
+}
+
+export interface VolumePrice {
+  minQty: number;
+  pricePerUnit: number;
+  label: string;
 }
 
 export interface Invoice {
   id: string;
   orderId: string;
   amount: number;
+  vatAmount: number;
   currency: string;
   status: string;
   issueDate: string;
@@ -106,4 +120,66 @@ export interface Notification {
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+}
+
+export interface RFQItem {
+  productId: string;
+  productName: string;
+  sku: string;
+  qty: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface RFQDraft {
+  items: RFQItem[];
+  destination: string;
+  paymentTerm: string;
+  notes: string;
+  projectRef: string;
+}
+
+export interface CreditAccount {
+  limit: number;
+  used: number;
+  available: number;
+  currency: string;
+  paymentTerms: string;
+  overdueAmount: number;
+  nextDueDate: string;
+}
+
+export interface EcoMilesAccount {
+  balance: number;
+  tier: "Bronze" | "Silver" | "Gold" | "Platinum";
+  pointsToNextTier: number;
+  nextTier: string;
+  ytdEarned: number;
+  redeemableValue: number;
+  history: EcoMilesEntry[];
+}
+
+export interface EcoMilesEntry {
+  date: string;
+  description: string;
+  points: number;
+  orderId?: string;
+}
+
+export interface SavedAddress {
+  id: string;
+  label: string;
+  line1: string;
+  city: string;
+  country: string;
+  contactName: string;
+  contactPhone: string;
+  isDefault: boolean;
+}
+
+export interface Toast {
+  id: string;
+  type: "success" | "error" | "warning" | "info";
+  title: string;
+  message?: string;
 }

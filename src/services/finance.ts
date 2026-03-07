@@ -1,10 +1,11 @@
-import { Invoice } from "@/types";
+import { Invoice, CreditAccount } from "@/types";
 
 const MOCK_INVOICES: Invoice[] = [
   {
     id: "INV-2025-0341",
     orderId: "SW-2024-0892",
     amount: 84000,
+    vatAmount: 4200,
     currency: "AED",
     status: "Due Soon",
     issueDate: "2025-03-01",
@@ -17,6 +18,7 @@ const MOCK_INVOICES: Invoice[] = [
     id: "INV-2025-0340",
     orderId: "SW-2024-0891",
     amount: 52500,
+    vatAmount: 2625,
     currency: "AED",
     status: "Overdue",
     issueDate: "2025-02-20",
@@ -29,6 +31,7 @@ const MOCK_INVOICES: Invoice[] = [
     id: "INV-2025-0339",
     orderId: "SW-2024-0890",
     amount: 21000,
+    vatAmount: 1050,
     currency: "AED",
     status: "Paid",
     issueDate: "2025-02-15",
@@ -41,6 +44,7 @@ const MOCK_INVOICES: Invoice[] = [
     id: "INV-2025-0338",
     orderId: "SW-2024-0889",
     amount: 28800,
+    vatAmount: 1440,
     currency: "AED",
     status: "Paid",
     issueDate: "2025-02-10",
@@ -53,6 +57,7 @@ const MOCK_INVOICES: Invoice[] = [
     id: "INV-2025-0337",
     orderId: "SW-2024-0888",
     amount: 104500,
+    vatAmount: 5225,
     currency: "AED",
     status: "Overdue",
     issueDate: "2025-02-01",
@@ -64,6 +69,16 @@ const MOCK_INVOICES: Invoice[] = [
   },
 ];
 
+export const MOCK_CREDIT_ACCOUNT: CreditAccount = {
+  limit: 500000,
+  used: 241000,
+  available: 259000,
+  currency: "AED",
+  paymentTerms: "Net 60",
+  overdueAmount: 157000,
+  nextDueDate: "2025-03-15",
+};
+
 export async function getInvoices(): Promise<Invoice[]> {
   await new Promise((r) => setTimeout(r, 350));
   return MOCK_INVOICES;
@@ -72,4 +87,9 @@ export async function getInvoices(): Promise<Invoice[]> {
 export async function getInvoice(id: string): Promise<Invoice | null> {
   await new Promise((r) => setTimeout(r, 150));
   return MOCK_INVOICES.find((i) => i.id === id) || null;
+}
+
+export async function getCreditAccount(): Promise<CreditAccount> {
+  await new Promise((r) => setTimeout(r, 200));
+  return MOCK_CREDIT_ACCOUNT;
 }

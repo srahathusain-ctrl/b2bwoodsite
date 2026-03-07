@@ -5,6 +5,7 @@ import { usePathname, redirect } from "next/navigation";
 import LiveTicker from "@/components/layout/LiveTicker";
 import Sidebar from "@/components/layout/Sidebar";
 import TopBar from "@/components/layout/TopBar";
+import { ToastContainer } from "@/components/ui/Toast";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   dashboard: { title: "Dashboard", subtitle: "Welcome to your B2B portal" },
@@ -19,11 +20,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   settings: { title: "Settings", subtitle: "Account & portal preferences" },
 };
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const segment = pathname.split("/")[1] || "dashboard";
@@ -46,8 +43,7 @@ export default function DashboardLayout({
 
   const name = session.user?.name?.split(" ")[0] || "there";
   const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-bg">
@@ -59,9 +55,10 @@ export default function DashboardLayout({
             title={page.title}
             subtitle={`${greeting}, ${name} · ${page.subtitle}`}
           />
-          <div className="flex-1 overflow-auto p-6">{children}</div>
+          <div className="flex-1 overflow-auto p-4 lg:p-6">{children}</div>
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

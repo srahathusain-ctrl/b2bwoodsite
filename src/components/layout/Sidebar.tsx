@@ -11,15 +11,20 @@ import { getInitials } from "@/lib/utils";
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
   const { data: session } = useSession();
 
   const currentPage = pathname.split("/")[1] || "dashboard";
 
-  return (
+  const navigate = (id: string) => {
+    router.push(`/${id}`);
+    setMobileSidebarOpen(false);
+  };
+
+  const SidebarContent = () => (
     <aside
       className={cn(
-        "bg-surface border-r border-border flex flex-col transition-all duration-200 h-full flex-shrink-0",
+        "bg-surface border-r border-border flex flex-col h-full flex-shrink-0 transition-all duration-200",
         sidebarCollapsed ? "w-16" : "w-60"
       )}
     >
@@ -31,18 +36,25 @@ export default function Sidebar() {
         {!sidebarCollapsed && (
           <div className="truncate flex-1">
             <div className="text-sm font-bold leading-tight">SteelWood</div>
-            <div className="text-[10px] text-muted uppercase tracking-wider">
-              Industries FZCO
-            </div>
+            <div className="text-[10px] text-muted uppercase tracking-wider">Industries FZCO</div>
           </div>
         )}
         <Button
           variant="ghost"
           size="sm"
-          className="ml-auto w-7 h-7 p-0 text-muted hover:text-text"
+          className="ml-auto w-7 h-7 p-0 text-muted hover:text-text hidden lg:flex"
           onClick={toggleSidebar}
         >
           {sidebarCollapsed ? "›" : "‹"}
+        </Button>
+        {/* Mobile close */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-auto w-7 h-7 p-0 text-muted hover:text-text lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        >
+          ✕
         </Button>
       </div>
 
@@ -54,12 +66,10 @@ export default function Sidebar() {
             <div
               key={item.id}
               className={cn("sidebar-item relative", isActive && "active")}
-              onClick={() => router.push(`/${item.id}`)}
+              onClick={() => navigate(item.id)}
               title={sidebarCollapsed ? item.label : ""}
             >
-              <span className="text-lg min-w-[20px] text-center flex-shrink-0">
-                {item.icon}
-              </span>
+              <span className="text-lg min-w-[20px] text-center flex-shrink-0">{item.icon}</span>
               {!sidebarCollapsed && (
                 <span className="flex-1 text-sm truncate">{item.label}</span>
               )}
@@ -90,9 +100,7 @@ export default function Sidebar() {
         </div>
         {!sidebarCollapsed && (
           <div className="truncate flex-1">
-            <div className="text-xs font-semibold truncate">
-              {session?.user?.name || "Danish Hussain"}
-            </div>
+            <div className="text-xs font-semibold truncate">{session?.user?.name || "Danish Hussain"}</div>
             <div className="text-[10px] text-muted truncate">
               {(session?.user as { role?: string })?.role || "Sales Manager"}
             </div>
@@ -100,5 +108,27 @@ export default function Sidebar() {
         )}
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex h-full">
+        <SidebarContent />
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          <div className="relative">
+            <SidebarContent />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

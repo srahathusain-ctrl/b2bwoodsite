@@ -11,6 +11,10 @@
   body {
     @apply bg-bg text-text;
   }
+  /* RTL support when Arabic is active */
+  [dir="rtl"] body {
+    font-family: var(--font-outfit), 'Noto Sans Arabic', sans-serif;
+  }
 }
 
 @layer components {
@@ -50,5 +54,53 @@
   /* Recharts tooltip customization */
   .recharts-tooltip-wrapper .recharts-default-tooltip {
     @apply !bg-card !border-border2 !rounded-lg !p-2 !text-xs font-sans !text-text;
+  }
+}
+
+@layer utilities {
+  /* Page entry animation */
+  .animate-fade-slide-up {
+    animation: fadeSlideUp 0.3s ease-out both;
+  }
+
+  /* Order drawer slide-in */
+  .animate-slide-in-right {
+    animation: slideInRight 0.25s ease-out both;
+  }
+
+  /* Offer ticker scroll */
+  .animate-ticker {
+    animation: ticker 55s linear infinite;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
