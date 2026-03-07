@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SteelWood B2B Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080B0F;--s1:#0F1318;--s2:#161B24;--s3:#1E2535;
+  --b1:#1A2030;--b2:#243040;--b3:#2E3D52;
+  --acc:#00E5A0;--acc2:#0070FF;--amber:#F5A623;--red:#FF4060;--violet:#7C6EFF;
+  --t1:#EDF2FF;--t2:#8A9BB8;--t3:#4A5870;--t4:#2A3448;
+  --r:10px;--font-h:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;
+  --glow:0 0 32px rgba(0,229,160,.12);
+}
+html,body,#root{height:100%;width:100%}
+body{background:var(--bg);color:var(--t1);font-family:var(--font-b);font-size:14px;overflow:hidden}
+button{font-family:var(--font-b);cursor:pointer;border:none;background:none}
+input,textarea{font-family:var(--font-b)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+
+/* ── TICKER ── */
+.ticker{height:34px;background:linear-gradient(90deg,#071A12,#07121E);border-bottom:1px solid var(--b1);display:flex;align-items:center;overflow:hidden;flex-shrink:0;position:relative;z-index:99}
+.ticker-lbl{background:var(--acc);color:#000;font-family:var(--font-h);font-size:9px;font-weight:800;letter-spacing:.14em;padding:0 14px;height:100%;display:flex;align-items:center;flex-shrink:0;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,0 100%);padding-right:22px}
+.ticker-scroll{flex:1;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 40px,black calc(100% - 40px),transparent)}
+.ticker-track{display:flex;animation:scrollTicker 50s linear infinite;width:max-content}
+.ticker-track:hover{animation-play-state:paused}
+.t-item{display:flex;align-items:center;gap:8px;padding:0 24px;white-space:nowrap;font-size:12px;color:var(--t2)}
+.t-tag{font-size:9px;font-weight:700;font-family:var(--font-h);padding:2px 7px;border-radius:4px;letter-spacing:.06em}
+.t-tag.g{background:rgba(0,229,160,.15);color:var(--acc);border:1px solid rgba(0,229,160,.25)}
+.t-tag.a{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.t-tag.b{background:rgba(0,112,255,.12);color:#5B9EFF;border:1px solid rgba(0,112,255,.2)}
+.t-sep{color:var(--b3);padding:0 4px}
+@keyframes scrollTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100vh}
+.body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:64px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;padding:14px 0 16px;flex-shrink:0;gap:2px}
+.logo{width:36px;height:36px;background:var(--acc);border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:var(--glow);cursor:pointer;flex-shrink:0}
+.logo svg{width:18px;height:18px}
+.nav-grp{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%}
+.n-sep{width:28px;height:1px;background:var(--b1);margin:8px 0}
+.nb{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent;color:var(--t3);transition:all .15s;position:relative}
+.nb:hover{background:var(--s2);color:var(--t2);border-color:var(--b1)}
+.nb.on{background:rgba(0,229,160,.1);color:var(--acc);border-color:rgba(0,229,160,.2)}
+.nb svg{width:17px;height:17px;stroke-width:1.6}
+.nb-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--s1)}
+.nb-tip{position:absolute;left:calc(100% + 8px);background:var(--s2);border:1px solid var(--b2);color:var(--t1);padding:4px 10px;border-radius:6px;font-size:11px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:300}
+.nb:hover .nb-tip{opacity:1}
+.sb-bot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));padding:2px;cursor:pointer}
+.av-i{width:100%;height:100%;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:11px;font-weight:700}
+.pulse{width:7px;height:7px;background:var(--acc);border-radius:50%;animation:pulse 2.2s infinite;box-shadow:0 0 6px var(--acc)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOP BAR ── */
+.topbar{height:56px;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;background:var(--s1)}
+.tb-title{font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--t1);flex:1}
+.tb-sub{font-size:11px;color:var(--t3);font-weight:400;margin-left:8px;font-family:var(--font-b)}
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:6px 12px;transition:border-color .2s;width:220px}
+.tb-search:focus-within{border-color:var(--acc)}
+.tb-search svg{width:13px;height:13px;color:var(--t3);flex-shrink:0;stroke-width:2}
+.tb-search input{background:none;border:none;outline:none;color:var(--t1);font-size:12px;width:100%}
+.tb-search input::placeholder{color:var(--t3)}
+.tb-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--b2);background:var(--s2);color:var(--t2);font-size:12px;transition:all .15s}
+.tb-btn:hover{border-color:var(--b3);color:var(--t1)}
+.tb-btn.pri{background:var(--acc);border-color:var(--acc);color:#000;font-weight:600}
+.tb-btn.pri:hover{background:#00cc8e}
+.tb-btn svg{width:13px;height:13px;stroke-width:2}
+.nb2{width:34px;height:34px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);transition:all .15s;position:relative}
+.nb2:hover{border-color:var(--b2);color:var(--t1)}
+.nb2 svg{width:15px;height:15px;stroke-width:1.8}
+.nb2-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;background:var(--red);border-radius:50%;border:1.5px solid var(--s1)}
+
+/* ── CONTENT ── */
+.page{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:18px}
+.page::-webkit-scrollbar{width:4px}
+
+/* ── GRID UTILS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g-main{display:grid;grid-template-columns:1.7fr 1fr;gap:16px}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--b2)}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--b1)}
+.ch-t{font-family:var(--font-h);font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;color:var(--t1)}
+.ch-t svg{width:13px;height:13px;color:var(--acc);stroke-width:2.2}
+.ch-a{font-size:11px;color:var(--acc);cursor:pointer;display:flex;align-items:center;gap:3px;transition:opacity .15s}
+.ch-a:hover{opacity:.7}
+.ch-a svg{width:11px;height:11px;stroke-width:2.5}
+.cb{padding:14px 18px}
+
+/* ── METRIC ── */
+.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:15px 17px;position:relative;overflow:hidden;cursor:default;transition:all .2s}
+.mc:hover{border-color:var(--b2);transform:translateY(-2px)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--mc-clr,var(--acc)),transparent)}
+.mc.b{--mc-clr:var(--acc2)}
+.mc.a{--mc-clr:var(--amber)}
+.mc.r{--mc-clr:var(--red)}
+.mc.v{--mc-clr:var(--violet)}
+.mc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.mc-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.mc-ico svg{width:15px;height:15px;stroke-width:1.8}
+.mc-ico.g{background:rgba(0,229,160,.1);color:var(--acc)}
+.mc-ico.b{background:rgba(0,112,255,.1);color:#5B9EFF}
+.mc-ico.a{background:rgba(245,166,35,.1);color:var(--amber)}
+.mc-ico.r{background:rgba(255,64,96,.1);color:var(--red)}
+.mc-ico.v{background:rgba(124,110,255,.1);color:var(--violet)}
+.delta{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;background:rgba(0,229,160,.1);color:var(--acc)}
+.delta.n{background:rgba(255,64,96,.1);color:var(--red)}
+.delta.a{background:rgba(245,166,35,.1);color:var(--amber)}
+.mc-v{font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--t1);line-height:1;margin-bottom:3px}
+.mc-l{font-size:11px;color:var(--t3)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);text-align:left;padding:0 12px 9px;border-bottom:1px solid var(--b1)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.015);cursor:pointer}
+.td-b{color:var(--t1) !important;font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-g{background:rgba(0,229,160,.1);color:var(--acc)}
+.p-a{background:rgba(245,166,35,.1);color:var(--amber)}
+.p-r{background:rgba(255,64,96,.1);color:var(--red)}
+.p-b{background:rgba(0,112,255,.1);color:#5B9EFF}
+.p-v{background:rgba(124,110,255,.1);color:var(--violet)}
+
+/* ── LOGIN ── */
+.login-wrap{height:100%;display:flex;overflow:hidden}
+.login-left{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;background:var(--bg);position:relative}
+.login-left::after{content:'';position:absolute;top:0;right:0;width:1px;height:100%;background:linear-gradient(180deg,transparent,var(--b2) 30%,var(--acc) 50%,var(--b2) 70%,transparent)}
+.login-bg-orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,.05) 0%,transparent 70%);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}
+.login-right{width:480px;background:linear-gradient(135deg,var(--s1) 0%,#0A1020 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;border-left:1px solid var(--b1)}
+.login-form{width:100%;max-width:340px}
+.lf-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px}
+.lf-logo-icon{width:42px;height:42px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow)}
+.lf-logo-icon svg{width:22px;height:22px}
+.lf-logo-text{font-family:var(--font-h);font-size:18px;font-weight:800;color:var(--t1)}
+.lf-logo-sub{font-size:10px;color:var(--t3);letter-spacing:.06em;font-weight:400}
+.lf-title{font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--t1);margin-bottom:6px}
+.lf-sub{font-size:12px;color:var(--t3);margin-bottom:28px}
+.lf-label{font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:500;display:block}
+.lf-input{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:11px 14px;color:var(--t1);font-size:13px;outline:none;transition:border-color .2s;margin-bottom:14px}
+.lf-input:focus{border-color:var(--acc)}
+.lf-input::placeholder{color:var(--t4)}
+.lf-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.lf-check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);cursor:pointer}
+.lf-link{font-size:12px;color:var(--acc);cursor:pointer;transition:opacity .15s}
+.lf-link:hover{opacity:.7}
+.lf-btn{width:100%;padding:13px;border-radius:9px;background:var(--acc);color:#000;font-family:var(--font-h);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;border:none;margin-bottom:16px}
+.lf-btn:hover{background:#00cc8e;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,229,160,.25)}
+.lf-divider{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lf-divider::before,.lf-divider::after{content:'';flex:1;height:1px;background:var(--b1)}
+.lf-divider span{font-size:11px;color:var(--t3)}
+.lf-sso{width:100%;padding:11px;border-radius:9px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.lf-sso:hover{border-color:var(--b3);color:var(--t1)}
+.login-brand{position:relative;z-index:1;text-align:center}
+.lb-tag{display:inline-block;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);color:var(--acc);font-size:10px;font-weight:700;font-family:var(--font-h);letter-spacing:.1em;padding:5px 14px;border-radius:20px;margin-bottom:24px}
+.lb-title{font-family:var(--font-h);font-size:36px;font-weight:800;color:var(--t1);line-height:1.15;margin-bottom:16px}
+.lb-title span{color:var(--acc)}
+.lb-sub{font-size:14px;color:var(--t2);line-height:1.7;max-width:420px;margin:0 auto 32px}
+.lb-features{display:flex;flex-direction:column;gap:12px;text-align:left;max-width:380px;margin:0 auto}
+.lb-feat{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:11px 14px}
+.lb-feat-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lb-feat-ico svg{width:14px;height:14px;stroke-width:1.8}
+.lb-feat-ico.g{background:rgba(0,229,160,.1);color:var(--acc)}
+.lb-feat-ico.b{background:rgba(0,112,255,.1);color:#5B9EFF}
+.lb-feat-ico.a{background:rgba(245,166,35,.1);color:var(--amber)}
+.lb-feat-ico.v{background:rgba(124,110,255,.1);color:var(--violet)}
+.lb-feat-t{font-size:12px;font-weight:500;color:var(--t1)}
+.lb-feat-s{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* ── OFFER ITEMS ── */
+.offer-item{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.offer-item:hover{border-color:var(--acc);background:rgba(0,229,160,.04)}
+.offer-item:last-child{margin-bottom:0}
+.o-tag{font-size:9px;font-weight:800;font-family:var(--font-h);padding:3px 8px;border-radius:5px;letter-spacing:.05em;flex-shrink:0}
+.o-tag.g{background:var(--acc);color:#000}
+.o-tag.a{background:var(--amber);color:#000}
+.o-tag.b{background:var(--acc2);color:#fff}
+.o-txt{flex:1}
+.o-name{font-size:12px;font-weight:500;color:var(--t1)}
+.o-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.o-exp{font-size:10px;color:var(--t3);display:flex;align-items:center;gap:4px;flex-shrink:0}
+.o-exp svg{width:10px;height:10px;stroke-width:2}
+
+/* ── DOC ITEMS ── */
+.doc-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.doc-item:hover{background:var(--s2);border-color:var(--b1)}
+.doc-item.on{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.15)}
+.di-ico{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.di-ico.pdf{background:rgba(255,64,96,.12)}
+.di-ico.xls{background:rgba(0,229,160,.1)}
+.di-ico.dwg{background:rgba(0,112,255,.1)}
+.di-ico.doc{background:rgba(124,110,255,.1)}
+.di-meta{flex:1;min-width:0}
+.di-name{font-size:12px;color:var(--t1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di-date{font-size:10px;color:var(--t3);margin-top:2px}
+.di-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(0,229,160,.1);color:var(--acc);flex-shrink:0}
+.di-badge.new{background:rgba(255,64,96,.1);color:var(--red)}
+.di-badge.live{background:rgba(0,229,160,.15);color:var(--acc);animation:pulse 2s infinite}
+.doc-grp-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding:10px 12px 5px}
+
+/* ── PRODUCT CARD ── */
+.prod-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s}
+.prod-card:hover{border-color:var(--b3);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.pc-img{height:100px;background:linear-gradient(135deg,var(--s2),var(--s3));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.pc-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,var(--s1))}
+.pc-tag{position:absolute;top:10px;left:10px;z-index:1;font-size:9px;font-weight:800;font-family:var(--font-h);padding:3px 8px;border-radius:4px;letter-spacing:.06em}
+.pc-tag.cert{background:rgba(0,229,160,.2);color:var(--acc);border:1px solid rgba(0,229,160,.3)}
+.pc-tag.fr{background:rgba(255,64,96,.15);color:var(--red);border:1px solid rgba(255,64,96,.25)}
+.pc-tag.mr{background:rgba(0,112,255,.15);color:#5B9EFF;border:1px solid rgba(0,112,255,.25)}
+.pc-tag.ac{background:rgba(124,110,255,.15);color:var(--violet);border:1px solid rgba(124,110,255,.25)}
+.pc-body{padding:13px 14px}
+.pc-name{font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.pc-spec{font-size:11px;color:var(--t3);margin-bottom:10px;line-height:1.5}
+.pc-price{font-family:var(--font-h);font-size:16px;font-weight:800;color:var(--acc);margin-bottom:10px}
+.pc-price span{font-size:11px;color:var(--t3);font-family:var(--font-b);font-weight:400}
+.pc-actions{display:flex;gap:8px}
+.pc-btn{flex:1;padding:8px;border-radius:7px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.pc-btn:hover{border-color:var(--b3);color:var(--t1)}
+.pc-btn.pri{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.2);color:var(--acc)}
+.pc-btn.pri:hover{background:rgba(0,229,160,.18)}
+.pc-btn svg{width:11px;height:11px;stroke-width:2}
+
+/* ── SUPPORT PAGE ── */
+.support-layout{display:flex;gap:16px;flex:1;min-height:0}
+.chat-panel{flex:1;display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden}
+.chat-head{padding:14px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px}
+.chat-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-av svg{width:18px;height:18px;color:#000;stroke-width:2}
+.chat-info{flex:1}
+.chat-name{font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--t1)}
+.chat-status{font-size:11px;color:var(--acc);display:flex;align-items:center;gap:5px;margin-top:1px}
+.chat-status::before{content:'';width:6px;height:6px;background:var(--acc);border-radius:50%;animation:pulse 2s infinite}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;gap:10px;max-width:80%}
+.msg.bot{align-self:flex-start}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;font-family:var(--font-h)}
+.msg-av.bot{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000}
+.msg-av.user{background:var(--s3);color:var(--t2)}
+.msg-bubble{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.55}
+.msg.bot .msg-bubble{background:var(--s2);border:1px solid var(--b1);color:var(--t1);border-radius:3px 10px 10px 10px}
+.msg.user .msg-bubble{background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.2);color:var(--t1);border-radius:10px 3px 10px 10px}
+.msg-time{font-size:10px;color:var(--t3);margin-top:4px;text-align:right}
+.msg.bot .msg-time{text-align:left}
+.chat-input-wrap{padding:14px 16px;border-top:1px solid var(--b1)}
+.chat-input{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:10px 14px;transition:border-color .2s}
+.chat-input:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,160,.06)}
+.chat-input svg{width:15px;height:15px;color:var(--acc);flex-shrink:0;stroke-width:2}
+.chat-input input{flex:1;background:none;border:none;outline:none;color:var(--t1);font-size:13px}
+.chat-input input::placeholder{color:var(--t3)}
+.send-btn{width:32px;height:32px;background:var(--acc);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s;border:none}
+.send-btn:hover{background:#00cc8e}
+.send-btn svg{width:14px;height:14px;color:#000;stroke-width:2.5}
+.quick-btns{display:flex;gap:6px;padding:8px 0 0;flex-wrap:wrap}
+.q-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t3);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.q-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── ACTIVITY ── */
+.act-item{display:flex;gap:10px;align-items:flex-start}
+.act-l{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;margin-top:3px}
+.act-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--b2);background:var(--s2);flex-shrink:0}
+.act-dot.g{border-color:var(--acc);background:var(--acc)}
+.act-dot.b{border-color:#5B9EFF;background:#5B9EFF}
+.act-dot.a{border-color:var(--amber);background:var(--amber)}
+.act-dot.r{border-color:var(--red);background:var(--red)}
+.act-line{width:1px;background:var(--b1);flex:1;min-height:18px}
+.act-body{flex:1}
+.act-txt{font-size:11px;color:var(--t2);line-height:1.4}
+.act-txt strong{color:var(--t1);font-weight:500}
+.act-time{font-size:10px;color:var(--t3);margin-top:3px}
+
+/* ── PROGRESS ── */
+.prog-row{margin-bottom:12px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:5px}
+.prog-bar{height:4px;background:var(--b1);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.prog-fill.g{background:var(--acc)}
+.prog-fill.b{background:#5B9EFF}
+.prog-fill.a{background:var(--amber)}
+.prog-fill.r{background:var(--red)}
+
+/* ── AGENT BAR ── */
+.agent-bar{padding:14px 22px;border-top:1px solid var(--b1);background:var(--s1);flex-shrink:0}
+.agent-inp{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:10px 14px;transition:all .2s}
+.agent-inp:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,229,160,.06)}
+.agent-inp svg{width:15px;height:15px;color:var(--acc);flex-shrink:0;stroke-width:2}
+.agent-inp input{flex:1;background:none;border:none;outline:none;color:var(--t1);font-size:13px}
+.agent-inp input::placeholder{color:var(--t3)}
+.agent-chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.a-chip{padding:4px 11px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t3);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.a-chip:hover{border-color:var(--acc);color:var(--acc)}
+.a-chip svg{width:10px;height:10px;stroke-width:2}
+
+/* ── ACCOUNT ── */
+.acc-grid{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.acc-sidebar{display:flex;flex-direction:column;gap:10px}
+.acc-profile-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px;text-align:center}
+.acc-av-big{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--acc2),var(--acc));padding:3px;margin:0 auto 12px}
+.acc-av-big-i{width:100%;height:100%;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:22px;font-weight:800}
+.acc-name{font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--t1);margin-bottom:3px}
+.acc-role{font-size:11px;color:var(--t3);margin-bottom:12px}
+.acc-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);color:var(--acc);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px}
+.acc-menu-item{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:8px;cursor:pointer;border:1px solid transparent;color:var(--t2);font-size:12px;transition:all .15s}
+.acc-menu-item:hover{background:var(--s2);border-color:var(--b1);color:var(--t1)}
+.acc-menu-item.on{background:rgba(0,229,160,.06);border-color:rgba(0,229,160,.15);color:var(--acc)}
+.acc-menu-item svg{width:14px;height:14px;stroke-width:1.8}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;font-weight:500;color:var(--t2)}
+.form-input{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--t1);font-size:13px;outline:none;transition:border-color .2s;font-family:var(--font-b)}
+.form-input:focus{border-color:var(--acc)}
+.form-input:disabled{opacity:.5;cursor:not-allowed}
+.form-section{margin-bottom:20px}
+.form-section-title{font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px}
+.form-section-title svg{width:13px;height:13px;color:var(--acc);stroke-width:2}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:24px;width:480px;max-width:90vw;position:relative}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-family:var(--font-h);font-size:16px;font-weight:700;color:var(--t1)}
+.modal-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--b2);background:transparent;color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.modal-close:hover{border-color:var(--b3);color:var(--t1)}
+.modal-close svg{width:14px;height:14px;stroke-width:2}
+.track-step{display:flex;gap:14px;margin-bottom:16px}
+.track-ico{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.track-ico-c{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--b2)}
+.track-ico-c.done{background:var(--acc);border-color:var(--acc)}
+.track-ico-c.done svg{color:#000}
+.track-ico-c.curr{border-color:var(--acc);background:rgba(0,229,160,.1)}
+.track-ico-c.curr svg{color:var(--acc)}
+.track-ico-c svg{width:14px;height:14px;stroke-width:2}
+.track-ico-line{width:2px;flex:1;min-height:20px;background:var(--b1)}
+.track-ico-line.done{background:var(--acc)}
+.track-body{flex:1;padding-top:4px}
+.track-step-t{font-size:13px;font-weight:500;color:var(--t1)}
+.track-step-s{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{padding:6px 13px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t3);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.on{border-color:var(--acc);color:var(--acc);background:rgba(0,229,160,.06)}
+
+/* ── INLINE PAGE FADES ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.page>*{animation:fadeUp .3s ease both}
+.page>*:nth-child(1){animation-delay:.03s}
+.page>*:nth-child(2){animation-delay:.07s}
+.page>*:nth-child(3){animation-delay:.11s}
+.page>*:nth-child(4){animation-delay:.15s}
+.page>*:nth-child(5){animation-delay:.19s}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+
+/* ── SVG ICONS ── */
+const I={
+  grid:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+  box:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>,
+  doc:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  truck:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  dollar:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+  tag:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
+  chat:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+  user:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  search:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  bell:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,
+  dl:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  plus:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  arr:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  send:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  star:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  settings:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+  chart:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  shield:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  layers:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+  phone:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012.03 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
+  mail:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  key:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>,
+  check:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  x:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  clock:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  gift:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>,
+  logout:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+};
+
+/* ─── TICKER ─── */
+const tickerItems=[
+  {tag:'NEW',cls:'g',text:'FireGuard FR-18 — 12% OFF on orders above 500 sheets · Valid till Mar 15'},
+  {tag:'FLASH',cls:'a',text:'MoistureSeal Plus — Buy 200, Get 20 FREE · Offer ends midnight'},
+  {tag:'PROMO',cls:'b',text:'FSC Chipboard 18mm — AED 42/sheet for verified LEED projects'},
+  {tag:'BUNDLE',cls:'g',text:'Acoustic Board + FR-18 Combo Pack · Special GCC pricing'},
+  {tag:'EXP SOON',cls:'a',text:'Non-FR 15mm Clearance — 18% off · Last 300 sheets in Jebel Ali'},
+  {tag:'NEW ARRIVAL',cls:'b',text:'E0 Low-Emission MDF — 3-day GCC delivery from Jebel Ali stock'},
+];
+function Ticker(){
+  const items=[...tickerItems,...tickerItems];
+  return(
+    <div className="ticker">
+      <div className="ticker-lbl">🔴 LIVE OFFERS</div>
+      <div className="ticker-scroll">
+        <div className="ticker-track">
+          {items.map((it,i)=>(
+            <React.Fragment key={i}>
+              <div className="t-item">
+                <span className={`t-tag ${it.cls}`}>{it.tag}</span>
+                {it.text}
+              </div>
+              <span className="t-sep">◆</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── LOGIN PAGE ─── */
+function LoginPage({onLogin}){
+  const [email,setEmail]=useState('danish@steelwood.ae');
+  const [pass,setPass]=useState('');
+  const [loading,setLoading]=useState(false);
+  const handleLogin=()=>{
+    setLoading(true);
+    setTimeout(()=>{setLoading(false);onLogin();},1100);
+  };
+  return(
+    <div className="login-wrap">
+      {/* LEFT BRAND */}
+      <div className="login-left">
+        <div className="login-bg-orb"/>
+        <div className="login-brand">
+          <div className="lb-tag">✦ ENTERPRISE B2B PLATFORM</div>
+          <div className="lb-title">Your business,<br/><span>intelligently</span> connected.</div>
+          <div className="lb-sub">Real-time orders, documents, offers and AI-powered support — all in one agentic workspace built for GCC B2B.</div>
+          <div className="lb-features">
+            <div className="lb-feat">
+              <div className="lb-feat-ico g">{I.chart}</div>
+              <div><div className="lb-feat-t">Live Order & Delivery Tracking</div><div className="lb-feat-s">Real-time status, dispatch alerts, POD collection</div></div>
+            </div>
+            <div className="lb-feat">
+              <div className="lb-feat-ico b">{I.doc}</div>
+              <div><div className="lb-feat-t">Document Vault</div><div className="lb-feat-s">Tax invoices, technical submittals, delivery notes</div></div>
+            </div>
+            <div className="lb-feat">
+              <div className="lb-feat-ico a">{I.gift}</div>
+              <div><div className="lb-feat-t">Personalised Offers Feed</div><div className="lb-feat-s">Account-specific pricing, LEED discounts, flash deals</div></div>
+            </div>
+            <div className="lb-feat">
+              <div className="lb-feat-ico v">{I.chat}</div>
+              <div><div className="lb-feat-t">24 × 7 AI Support</div><div className="lb-feat-s">Instant answers, human escalation, SLA tracking</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* RIGHT FORM */}
+      <div className="login-right">
+        <div className="login-form">
+          <div className="lf-logo">
+            <div className="lf-logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <div>
+              <div className="lf-logo-text">SteelWood Industries</div>
+              <div className="lf-logo-sub">FZCO · B2B PORTAL</div>
+            </div>
+          </div>
+          <div className="lf-title">Welcome back</div>
+          <div className="lf-sub">Sign in to your account to continue</div>
+          <label className="lf-label">Email address</label>
+          <input className="lf-input" value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@company.ae"/>
+          <label className="lf-label">Password</label>
+          <input className="lf-input" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"/>
+          <div className="lf-row">
+            <label className="lf-check"><input type="checkbox" style={{accentColor:'var(--acc)'}}/> Remember me</label>
+            <span className="lf-link">Forgot password?</span>
+          </div>
+          <button className="lf-btn" onClick={handleLogin}>{loading?'Authenticating…':'Sign in to Portal'}</button>
+          <div className="lf-divider"><span>or</span></div>
+          <button className="lf-sso">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="11" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Continue with SSO / Microsoft Entra
+          </button>
+          <div style={{textAlign:'center',marginTop:20,fontSize:11,color:'var(--t3)'}}>
+            New supplier? <span className="lf-link">Request portal access →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── SIDEBAR NAV ─── */
+function Sidebar({page,setPage,onLogout}){
+  const links=[
+    {id:'dashboard',icon:'grid',tip:'Dashboard'},
+    {id:'orders',icon:'box',tip:'Orders'},
+    {id:'docs',icon:'doc',tip:'Document Vault',badge:true},
+    {id:'delivery',icon:'truck',tip:'Deliveries'},
+    {id:'invoices',icon:'dollar',tip:'Invoices'},
+    {id:'catalogue',icon:'layers',tip:'Products'},
+    {id:'offers',icon:'gift',tip:'Offers'},
+    {id:'support',icon:'chat',tip:'Support 24/7'},
+  ];
+  return(
+    <nav className="sidebar">
+      <div className="logo" onClick={()=>setPage('dashboard')}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div className="nav-grp">
+        {links.map(l=>(
+          <div key={l.id} className={`nb ${page===l.id?'on':''}`} onClick={()=>setPage(l.id)}>
+            {I[l.icon]}
+            {l.badge&&<div className="nb-dot"/>}
+            <span className="nb-tip">{l.tip}</span>
+          </div>
+        ))}
+      </div>
+      <div className="n-sep"/>
+      <div className="nav-grp">
+        <div className={`nb ${page==='account'?'on':''}`} onClick={()=>setPage('account')}>{I.user}<span className="nb-tip">Account</span></div>
+        <div className="nb" onClick={()=>setPage('settings')}>{I.settings}<span className="nb-tip">Settings</span></div>
+      </div>
+      <div className="sb-bot">
+        <div className="pulse"/>
+        <div className="av" onClick={()=>setPage('account')}>
+          <div className="av-i">DH</div>
+        </div>
+        <div className="nb" onClick={onLogout} style={{marginTop:2}}>{I.logout}<span className="nb-tip">Logout</span></div>
+      </div>
+    </nav>
+  );
+}
+
+/* ─── TOP BAR ─── */
+function TopBar({title,sub,actions,setPage}){
+  return(
+    <div className="topbar">
+      <div className="tb-title">{title}<span className="tb-sub">{sub}</span></div>
+      <div className="tb-search">
+        {I.search}
+        <input placeholder="Search orders, docs, products…"/>
+      </div>
+      {actions}
+      <div className="nb2"><span className="nb2-dot"/>{I.bell}</div>
+      <div className="av" onClick={()=>setPage('account')} style={{width:34,height:34}}>
+        <div className="av-i" style={{fontSize:10}}>DH</div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── AGENT BAR ─── */
+function AgentBar(){
+  const chips=['Latest Invoice','Track Delivery','Current Offers','FR-18 Spec Sheet','Raise a Ticket'];
+  return(
+    <div className="agent-bar">
+      <div className="agent-inp">
+        {I.star}
+        <input placeholder="Ask anything — track order, get spec sheet, download invoice, check stock…"/>
+        <button className="send-btn">{I.send}</button>
+      </div>
+      <div className="agent-chips">
+        <span style={{fontSize:10,color:'var(--t3)',marginRight:2}}>Quick:</span>
+        {chips.map(c=><button key={c} className="a-chip">{I.arr}{c}</button>)}
+      </div>
+    </div>
+  );
+}
+
+/* ─── DASHBOARD ─── */
+function Dashboard({setPage}){
+  const [modal,setModal]=useState(null);
+  const metrics=[
+    {icon:'box',cls:'g',mc:'',val:'24',label:'Active Orders',delta:'+8%',dCls:''},
+    {icon:'truck',cls:'b',mc:'b',val:'7',label:'Pending Deliveries',delta:'3 today',dCls:'a'},
+    {icon:'dollar',cls:'a',mc:'a',val:'AED 241K',label:'Outstanding Invoices',delta:'Due',dCls:'n'},
+    {icon:'chart',cls:'r',mc:'r',val:'AED 1.4M',label:'YTD Revenue',delta:'↑12%',dCls:''},
+  ];
+  const orders=[
+    {id:'ORD-3841',prod:'FR-18 Fire Rated 18mm',qty:'800 pcs',status:'Dispatched',scls:'p-g',eta:'Mar 8'},
+    {id:'ORD-3829',prod:'MoistureSeal Plus 15mm',qty:'400 pcs',status:'Processing',scls:'p-a',eta:'Mar 10'},
+    {id:'ORD-3817',prod:'Acoustic Standard 12mm',qty:'200 pcs',status:'Confirmed',scls:'p-b',eta:'Mar 14'},
+    {id:'ORD-3805',prod:'Chipboard Non-FR 16mm',qty:'600 pcs',status:'Delivered',scls:'p-g',eta:'Done'},
+    {id:'ORD-3791',prod:'FSC Chipboard 18mm',qty:'1200 pcs',status:'Pending LC',scls:'p-a',eta:'Mar 18'},
+  ];
+  const offers=[
+    {tag:'12% OFF',tcls:'g',name:'FireGuard FR-18 Bulk Discount',sub:'Min 500 sheets · FSC certified',exp:'8 days'},
+    {tag:'BUY 200',tcls:'a',name:'MoistureSeal Plus Free Bonus',sub:'20 sheets free · GCC delivery included',exp:'Today'},
+    {tag:'LEED',tcls:'b',name:'FSC Chipboard 18mm Special Rate',sub:'AED 42/sheet for LEED projects',exp:'Mar 20'},
+    {tag:'CLEARANCE',tcls:'a',name:'Non-FR 15mm End-of-Q1 Deal',sub:'18% off · Last 300 sheets Jebel Ali',exp:'Limited'},
+  ];
+  const activity=[
+    {dot:'g',text:<><strong>DN-0512 dispatched</strong> · 800 FR-18 sheets en route to Starwood Industries</>,time:'09:14 AM'},
+    {dot:'a',text:<><strong>Invoice INV-0312</strong> AED 84,200 due in <strong style={{color:'var(--amber)'}}>8 days</strong></>,time:'08:30 AM'},
+    {dot:'b',text:<>New offer: <strong>FSC Chipboard LEED rate</strong> activated for your account</>,time:'07:45 AM'},
+    {dot:'g',text:<><strong>ORD-3817 confirmed</strong> — Acoustic 12mm processing started</>,time:'07:02 AM'},
+    {dot:'r',text:<><strong>INV-2025-0271</strong> AED 120K marked <strong style={{color:'var(--red)'}}>overdue</strong></>,time:'Yesterday'},
+  ];
+  return(
+    <>
+      <TopBar title="Dashboard" sub="Good morning, Danish" setPage={setPage}
+        actions={<><button className="tb-btn pri" onClick={()=>setPage('orders')}>{I.plus}New Order</button></>}/>
+      <div className="page">
+        <div className="g4">
+          {metrics.map((m,i)=>(
+            <div key={i} className={`mc ${m.mc}`}>
+              <div className="mc-top">
+                <div className={`mc-ico ${m.cls}`}>{I[m.icon]}</div>
+                <span className={`delta ${m.dCls}`}>{m.delta}</span>
+              </div>
+              <div className="mc-v">{m.val}</div>
+              <div className="mc-l">{m.label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="g-main">
+          <div>
+            <div className="card">
+              <div className="ch">
+                <div className="ch-t">{I.box}Recent Orders</div>
+                <div className="ch-a" onClick={()=>setPage('orders')}>View All {I.arr}</div>
+              </div>
+              <div style={{padding:'0 4px'}}>
+                <table className="tbl">
+                  <thead><tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>ETA</th></tr></thead>
+                  <tbody>
+                    {orders.map(o=>(
+                      <tr key={o.id} onClick={()=>setModal(o)}>
+                        <td className="td-b">{o.id}</td>
+                        <td>{o.prod}</td><td>{o.qty}</td>
+                        <td><span className={`pill ${o.scls}`}>{o.status}</span></td>
+                        <td>{o.eta}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style={{marginTop:16}}>
+              <div className="card">
+                <div className="ch"><div className="ch-t">{I.gift}Current Offers</div><div className="ch-a" onClick={()=>setPage('offers')}>All Offers {I.arr}</div></div>
+                <div className="cb">
+                  {offers.map((o,i)=>(
+                    <div key={i} className="offer-item">
+                      <span className={`o-tag ${o.tcls}`}>{o.tag}</span>
+                      <div className="o-txt"><div className="o-name">{o.name}</div><div className="o-sub">{o.sub}</div></div>
+                      <div className="o-exp">{I.clock}{o.exp}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            {/* DELIVERY PROGRESS */}
+            <div className="card">
+              <div className="ch"><div className="ch-t">{I.truck}Live Deliveries</div><div className="ch-a" onClick={()=>setPage('delivery')}>Track {I.arr}</div></div>
+              <div className="cb">
+                {[{lbl:'DN-0512 · Starwood',pct:72,cls:'g',sub:'FR-18 ×800 · ETA Mar 8'},{lbl:'DN-0509 · Al Habtoor',pct:45,cls:'a',sub:'MoistureSeal · Customs'},{lbl:'DN-0503 · Intermetal',pct:20,cls:'b',sub:'Acoustic ×200 · Packed'}].map((d,i)=>(
+                  <div key={i} className="prog-row">
+                    <div className="prog-lbl"><span>{d.lbl}</span><span style={{color:d.cls==='g'?'var(--acc)':d.cls==='a'?'var(--amber)':'#5B9EFF'}}>{d.pct}%</span></div>
+                    <div className="prog-bar"><div className={`prog-fill ${d.cls}`} style={{width:d.pct+'%'}}/></div>
+                    <div style={{fontSize:10,color:'var(--t3)',marginTop:3}}>{d.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* ACTIVITY */}
+            <div className="card" style={{flex:1}}>
+              <div className="ch"><div className="ch-t">{I.chart}Activity Feed</div></div>
+              <div className="cb" style={{display:'flex',flexDirection:'column',gap:10}}>
+                {activity.map((a,i)=>(
+                  <div key={i} className="act-item">
+                    <div className="act-l"><div className={`act-dot ${a.dot}`}/>{i<activity.length-1&&<div className="act-line"/>}</div>
+                    <div className="act-body"><div className="act-txt">{a.text}</div><div className="act-time">{a.time}</div></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <AgentBar/>
+      {modal&&(
+        <div className="modal-ov" onClick={()=>setModal(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">Order {modal.id}</div>
+              <button className="modal-close" onClick={()=>setModal(null)}>{I.x}</button>
+            </div>
+            <div style={{marginBottom:14}}>
+              <span className={`pill ${modal.scls}`}>{modal.status}</span>
+              <span style={{marginLeft:10,fontSize:12,color:'var(--t2)'}}>{modal.prod} · {modal.qty}</span>
+            </div>
+            {[{t:'Order Placed',s:'Mar 1, 09:00 AM',done:true},{t:'Payment Confirmed',s:'Mar 1, 11:30 AM',done:true},{t:'Warehouse Processing',s:'Mar 2, 02:00 PM',done:modal.status!=='Confirmed'},{t:'Dispatched',s:'Mar 4, 08:15 AM',done:modal.status==='Dispatched'||modal.status==='Delivered'},{t:'Delivered',s:modal.eta,done:modal.status==='Delivered'}].map((st,i,arr)=>(
+              <div key={i} className="track-step">
+                <div className="track-ico">
+                  <div className={`track-ico-c ${st.done?'done':i===arr.findIndex(x=>!x.done)?'curr':''}`}>
+                    {st.done?I.check:I.clock}
+                  </div>
+                  {i<arr.length-1&&<div className={`track-ico-line ${st.done?'done':''}`}/>}
+                </div>
+                <div className="track-body">
+                  <div className="track-step-t">{st.t}</div>
+                  <div className="track-step-s">{st.s}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─── ORDERS PAGE ─── */
+function OrdersPage({setPage}){
+  const [filter,setFilter]=useState('All');
+  const [modal,setModal]=useState(null);
+  const all=[
+    {id:'ORD-3841',prod:'FR-18 Fire Rated 18mm',qty:'800 pcs',val:'AED 38,400',status:'Dispatched',scls:'p-g',eta:'Mar 8',cust:'Starwood Industries'},
+    {id:'ORD-3829',prod:'MoistureSeal Plus 15mm',qty:'400 pcs',val:'AED 17,200',status:'Processing',scls:'p-a',eta:'Mar 10',cust:'Intermetal FZCO'},
+    {id:'ORD-3817',prod:'Acoustic Standard 12mm',qty:'200 pcs',val:'AED 8,600',status:'Confirmed',scls:'p-b',eta:'Mar 14',cust:'Al Habtoor Group'},
+    {id:'ORD-3805',prod:'Chipboard Non-FR 16mm',qty:'600 pcs',val:'AED 24,000',status:'Delivered',scls:'p-g',eta:'Done',cust:'Damac Properties'},
+    {id:'ORD-3791',prod:'FSC Chipboard 18mm',qty:'1200 pcs',val:'AED 50,400',status:'Pending LC',scls:'p-a',eta:'Mar 18',cust:'Emaar Devt.'},
+    {id:'ORD-3772',prod:'FR-18 Fire Rated 15mm',qty:'300 pcs',val:'AED 12,300',status:'Delivered',scls:'p-g',eta:'Done',cust:'Arabtec'},
+    {id:'ORD-3761',prod:'Acoustic Premium 18mm',qty:'150 pcs',val:'AED 9,750',status:'Cancelled',scls:'p-r',eta:'—',cust:'Confidential'},
+    {id:'ORD-3748',prod:'MoistureSeal 18mm',qty:'500 pcs',val:'AED 22,500',status:'Delivered',scls:'p-g',eta:'Done',cust:'Expo City Dubai'},
+  ];
+  const filters=['All','Active','Dispatched','Processing','Delivered','Pending LC'];
+  const filtered=filter==='All'?all:filter==='Active'?all.filter(o=>['Dispatched','Processing','Confirmed','Pending LC'].includes(o.status)):all.filter(o=>o.status===filter);
+  return(
+    <>
+      <TopBar title="Orders" sub={`${filtered.length} orders`} setPage={setPage}
+        actions={<button className="tb-btn pri">{I.plus}New Order</button>}/>
+      <div className="page">
+        <div className="g4">
+          {[{val:'24',lbl:'Total Active',cls:'',mc:''},{val:'7',lbl:'Dispatched',cls:'g',mc:''},{val:'AED 241K',lbl:'Pending Value',cls:'a',mc:'a'},{val:'3',lbl:'Awaiting LC',cls:'r',mc:'r'}].map((m,i)=>(
+            <div key={i} className={`mc ${m.mc}`}>
+              <div className="mc-v">{m.val}</div>
+              <div className="mc-l">{m.lbl}</div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="ch">
+            <div className="ch-t">{I.box}All Orders</div>
+            <button className="tb-btn" style={{marginLeft:'auto'}}>{I.dl}Export</button>
+          </div>
+          <div style={{padding:'12px 18px 0'}}>
+            <div className="filter-bar">
+              {filters.map(f=>(
+                <button key={f} className={`filter-btn ${filter===f?'on':''}`} onClick={()=>setFilter(f)}>{f}</button>
+              ))}
+            </div>
+          </div>
+          <table className="tbl" style={{padding:'0 4px'}}>
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Value</th><th>Status</th><th>ETA</th><th></th></tr></thead>
+            <tbody>
+              {filtered.map(o=>(
+                <tr key={o.id} onClick={()=>setModal(o)}>
+                  <td className="td-b">{o.id}</td>
+                  <td>{o.cust}</td>
+                  <td>{o.prod}</td>
+                  <td>{o.qty}</td>
+                  <td className="td-b">{o.val}</td>
+                  <td><span className={`pill ${o.scls}`}>{o.status}</span></td>
+                  <td>{o.eta}</td>
+                  <td><span style={{color:'var(--acc)',fontSize:12,cursor:'pointer'}}>Track →</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <AgentBar/>
+      {modal&&(
+        <div className="modal-ov" onClick={()=>setModal(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">Tracking — {modal.id}</div>
+              <button className="modal-close" onClick={()=>setModal(null)}>{I.x}</button>
+            </div>
+            <div style={{marginBottom:14,display:'flex',gap:8,flexWrap:'wrap'}}>
+              <span className={`pill ${modal.scls}`}>{modal.status}</span>
+              <span style={{fontSize:12,color:'var(--t2)'}}>{modal.prod} · {modal.qty}</span>
+              <span style={{fontSize:12,color:'var(--t3)'}}>Customer: {modal.cust}</span>
+            </div>
+            {[{t:'Order Placed',s:'Mar 1 09:00',done:true},{t:'Payment / LC Confirmed',s:'Mar 1 11:30',done:!['Pending LC'].includes(modal.status)},{t:'Warehouse Processing',s:'Mar 2',done:['Dispatched','Delivered'].includes(modal.status)},{t:'Dispatched',s:'Mar 4 08:15',done:['Dispatched','Delivered'].includes(modal.status)},{t:'Delivered · POD Received',s:modal.eta,done:modal.status==='Delivered'}].map((st,i,arr)=>(
+              <div key={i} className="track-step">
+                <div className="track-ico">
+                  <div className={`track-ico-c ${st.done?'done':i===arr.findIndex(x=>!x.done)?'curr':''}`}>{st.done?I.check:I.clock}</div>
+                  {i<arr.length-1&&<div className={`track-ico-line ${st.done?'done':''}`}/>}
+                </div>
+                <div className="track-body"><div className="track-step-t">{st.t}</div><div className="track-step-s">{st.s}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─── DOCUMENT VAULT ─── */
+function DocsPage({setPage}){
+  const [active,setActive]=useState(null);
+  const groups=[
+    {lbl:'Technical Submittals',items:[
+      {ico:'dwg',name:'FR-18 Fire Rated Spec Sheet v3.2',date:'Updated Feb 28',badge:'PDF',bcls:''},
+      {ico:'pdf',name:'MoistureSeal Plus Installation Guide',date:'Jan 15, 2025',badge:'PDF',bcls:''},
+      {ico:'dwg',name:'Acoustic Board CAD Drawings',date:'Dec 20, 2024',badge:'DWG',bcls:''},
+      {ico:'pdf',name:'FSC Chain of Custody Certificate',date:'Valid 2025',badge:'NEW',bcls:'new'},
+      {ico:'pdf',name:'UAE Fire Code Compliance Report',date:'Audit Dec 2024',badge:'PDF',bcls:''},
+    ]},
+    {lbl:'Tax Invoices',items:[
+      {ico:'xls',name:'INV-2025-0312 · AED 84,200',date:'Mar 1, 2025',badge:'PDF',bcls:''},
+      {ico:'xls',name:'INV-2025-0298 · AED 36,750',date:'Feb 21, 2025',badge:'PDF',bcls:''},
+      {ico:'xls',name:'INV-2025-0271 · AED 120,000',date:'Feb 5, 2025',badge:'PDF',bcls:''},
+      {ico:'xls',name:'INV-2025-0244 · AED 58,400',date:'Jan 28, 2025',badge:'PDF',bcls:''},
+    ]},
+    {lbl:'Delivery Notes',items:[
+      {ico:'doc',name:'DN-0512 — Starwood Industries',date:'En Route · ETA Mar 8',badge:'LIVE',bcls:'live'},
+      {ico:'doc',name:'DN-0498 — Intermetal FZCO',date:'Delivered Feb 27',badge:'PDF',bcls:''},
+      {ico:'doc',name:'DN-0481 — Al Habtoor Group',date:'Delivered Feb 18',badge:'PDF',bcls:''},
+      {ico:'doc',name:'DN-0468 — Damac Properties',date:'Delivered Feb 10',badge:'PDF',bcls:''},
+    ]},
+    {lbl:'LEED & Compliance',items:[
+      {ico:'pdf',name:'LEED Compliance Declaration 2024',date:'Audit complete',badge:'PDF',bcls:''},
+      {ico:'pdf',name:'FSC COC Certificate SW-COC-009121',date:'Valid Dec 2025',badge:'PDF',bcls:''},
+      {ico:'dwg',name:'Green Building Product Datasheet',date:'Ver 2.1 · Jan 2025',badge:'PDF',bcls:''},
+    ]},
+  ];
+  return(
+    <>
+      <TopBar title="Document Vault" sub="Secure access to all your files" setPage={setPage}
+        actions={<><button className="tb-btn">{I.dl}Download All</button><button className="tb-btn pri">{I.plus}Upload</button></>}/>
+      <div className="page">
+        <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:16,flex:1,minHeight:0}}>
+          {/* LEFT LIST */}
+          <div style={{display:'flex',flexDirection:'column',gap:10,overflowY:'auto'}}>
+            {groups.map((g,gi)=>(
+              <div className="card" key={gi}>
+                <div className="doc-grp-lbl">{g.lbl}</div>
+                {g.items.map((d,di)=>(
+                  <div key={di} className={`doc-item ${active===`${gi}-${di}`?'on':''}`} onClick={()=>setActive(`${gi}-${di}`)}>
+                    <div className={`di-ico ${d.ico}`}>{d.ico==='pdf'?'📄':d.ico==='dwg'?'📐':d.ico==='xls'?'🧾':'🚚'}</div>
+                    <div className="di-meta"><div className="di-name">{d.name}</div><div className="di-date">{d.date}</div></div>
+                    <div className={`di-badge ${d.bcls}`}>{d.badge}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          {/* RIGHT PREVIEW */}
+          <div className="card" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:400}}>
+            {active?(()=>{
+              const [gi,di]=active.split('-').map(Number);
+              const doc=groups[gi].items[di];
+              return(
+                <div style={{textAlign:'center',padding:32}}>
+                  <div style={{fontSize:64,marginBottom:16}}>{doc.ico==='pdf'?'📄':doc.ico==='dwg'?'📐':doc.ico==='xls'?'🧾':'🚚'}</div>
+                  <div style={{fontFamily:'var(--font-h)',fontSize:16,fontWeight:700,color:'var(--t1)',marginBottom:6}}>{doc.name}</div>
+                  <div style={{fontSize:12,color:'var(--t3)',marginBottom:24}}>{groups[gi].lbl} · {doc.date}</div>
+                  <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+                    <button className="tb-btn pri">{I.dl}Download</button>
+                    <button className="tb-btn">{I.send}Share</button>
+                    <button className="tb-btn">{I.doc}Preview</button>
+                  </div>
+                  <div style={{marginTop:24,padding:'14px 18px',background:'var(--s2)',border:'1px solid var(--b1)',borderRadius:9,textAlign:'left'}}>
+                    <div style={{fontSize:11,color:'var(--t3)',marginBottom:8,letterSpacing:'.06em',fontWeight:600,textTransform:'uppercase'}}>File Details</div>
+                    {[['Category',groups[gi].lbl],['Format',doc.badge==='DWG'?'AutoCAD DWG':'PDF Document'],['Last Updated',doc.date],['Access Level','Account Holder'],['Status',doc.badge==='LIVE'?'Live Document':doc.badge==='NEW'?'Newly Added':'Archived']].map(([k,v])=>(
+                      <div key={k} style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:6}}>
+                        <span style={{color:'var(--t3)'}}>{k}</span>
+                        <span style={{color:'var(--t1)',fontWeight:500}}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })():(
+              <div style={{textAlign:'center',color:'var(--t3)'}}>
+                <div style={{fontSize:48,marginBottom:12}}>📂</div>
+                <div style={{fontFamily:'var(--font-h)',fontSize:14,marginBottom:6}}>Select a document to preview</div>
+                <div style={{fontSize:12}}>Click any file from the vault to view details &amp; download</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <AgentBar/>
+    </>
+  );
+}
+
+/* ─── CATALOGUE PAGE ─── */
+function CataloguePage({setPage}){
+  const [filter,setFilter]=useState('All');
+  const [modal,setModal]=useState(null);
+  const products=[
+    {name:'FireGuard FR-18',spec:'18mm · Fire Rated · FSC Certified',price:'AED 48',unit:'/sheet',tag:'FR',tcls:'fr',ico:'🔥',cat:'Fire Rated',desc:'Class A1 fire rated chipboard, compliant with UAE Fire Code and EN 13501. Ideal for commercial fit-outs, hospitality, and high-rise residential projects. Available in standard 2440×1220mm.',features:['UAE Fire Code Compliant','EN 13501 Class A1','FSC COC Certified','Moisture Resistant Coating']},
+    {name:'MoistureSeal Plus',spec:'15mm / 18mm · Moisture Rated · Green Label',price:'AED 42',unit:'/sheet',tag:'MR',tcls:'mr',ico:'💧',cat:'Moisture Rated',desc:'Advanced moisture-resistant chipboard for bathrooms, kitchens, and humid environments. Green Label Plus certified for low VOC emissions. Ideal for LEED projects.',features:['Green Label Plus Certified','E0 Low Emission','High Density Core','LEED Contribution Points']},
+    {name:'Acoustic Standard',spec:'12mm · Sound Dampening · Class C',price:'AED 38',unit:'/sheet',tag:'AC',tcls:'ac',ico:'🔇',cat:'Acoustic',desc:'Premium acoustic chipboard with enhanced sound dampening properties. Class C sound absorption, suitable for office fit-outs, recording studios, and hospitality interiors.',features:['Class C Sound Absorption','NRC 0.65 Rating','Easy Installation','Compatible with all finishes']},
+    {name:'FSC Chipboard 18mm',spec:'18mm · Non-FR · FSC Certified',price:'AED 36',unit:'/sheet',tag:'FSC',tcls:'cert',ico:'🌿',cat:'Standard',desc:'Standard structural chipboard with full FSC chain-of-custody certification. Ideal for furniture manufacturing, general fit-outs, and projects requiring sustainability documentation.',features:['FSC COC Certified','LEED MR Credit Eligible','Flat Cut Surface','Consistent Density']},
+    {name:'FireGuard FR-15',spec:'15mm · Fire Rated · EN 312',price:'AED 42',unit:'/sheet',tag:'FR',tcls:'fr',ico:'🔥',cat:'Fire Rated',desc:'15mm fire-rated chipboard variant for partition walls and ceiling applications. EN 312 compliant, lower weight than FR-18, suitable for raised access flooring.',features:['EN 312 Compliant','Lightweight Design','Reduced Thickness','Halogen Free']},
+    {name:'E0 Premium MDF',spec:'18mm · E0 Low Emission · New Stock',price:'AED 52',unit:'/sheet',tag:'NEW',tcls:'cert',ico:'✨',cat:'MDF',desc:'Newly stocked E0 emission MDF, ideal for indoor furniture and cabinetry. Formaldehyde-free adhesive system, mirror-smooth surface for lacquering and veneering.',features:['E0 Zero Formaldehyde','Mirror Smooth Surface','CARB Phase 2 Compliant','Jebel Ali 3-day delivery']},
+  ];
+  const cats=['All','Fire Rated','Moisture Rated','Acoustic','Standard','MDF'];
+  const filtered=filter==='All'?products:products.filter(p=>p.cat===filter);
+  return(
+    <>
+      <TopBar title="Product Catalogue" sub="FSC-certified sustainable wood products" setPage={setPage}
+        actions={<><button className="tb-btn">{I.dl}Download Catalogue</button><button className="tb-btn pri">{I.plus}Request Quote</button></>}/>
+      <div className="page">
+        <div className="filter-bar">
+          {cats.map(c=><button key={c} className={`filter-btn ${filter===c?'on':''}`} onClick={()=>setFilter(c)}>{c}</button>)}
+        </div>
+        <div className="g3">
+          {filtered.map((p,i)=>(
+            <div key={i} className="prod-card" onClick={()=>setModal(p)}>
+              <div className="pc-img">
+                <span style={{fontSize:48,position:'relative',zIndex:1}}>{p.ico}</span>
+                <span className={`pc-tag ${p.tcls}`}>{p.tag}</span>
+              </div>
+              <div className="pc-body">
+                <div className="pc-name">{p.name}</div>
+                <div className="pc-spec">{p.spec}</div>
+                <div className="pc-price">{p.price}<span>{p.unit}</span></div>
+                <div className="pc-actions">
+                  <button className="pc-btn" onClick={e=>{e.stopPropagation()}}>{I.dl}Spec Sheet</button>
+                  <button className="pc-btn pri" onClick={e=>{e.stopPropagation()}}>{I.plus}Add to Quote</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <AgentBar/>
+      {modal&&(
+        <div className="modal-ov" onClick={()=>setModal(null)}>
+          <div className="modal" style={{width:520}} onClick={e=>e.stopPropagation()}>
+            <div className="modal-head">
+              <div className="modal-title">{modal.name}</div>
+              <button className="modal-close" onClick={()=>setModal(null)}>{I.x}</button>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16,background:'var(--s2)',borderRadius:9,padding:14}}>
+              <span style={{fontSize:40}}>{modal.ico}</span>
+              <div>
+                <div style={{fontFamily:'var(--font-h)',fontSize:22,fontWeight:800,color:'var(--acc)'}}>{modal.price}<span style={{fontSize:12,color:'var(--t3)',fontFamily:'var(--font-b)',fontWeight:400}}>{modal.unit}</span></div>
+                <div style={{fontSize:12,color:'var(--t3)'}}>{modal.spec}</div>
+              </div>
+            </div>
+            <div style={{fontSize:13,color:'var(--t2)',lineHeight:1.6,marginBottom:16}}>{modal.desc}</div>
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',color:'var(--t3)',marginBottom:8}}>Key Features</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                {modal.features.map(f=>(
+                  <div key={f} style={{display:'flex',alignItems:'center',gap:7,fontSize:12,color:'var(--t2)'}}>
+                    <span style={{color:'var(--acc)'}}>{I.check}</span>{f}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <button className="tb-btn" style={{flex:1}}>{I.dl}Download Spec Sheet</button>
+              <button className="tb-btn pri" style={{flex:1}}>{I.plus}Request Quote</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─── SUPPORT PAGE ─── */
+function SupportPage({setPage}){
+  const [msgs,setMsgs]=useState([
+    {role:'bot',text:'Hello Danish! I\'m your SteelWood AI assistant, available 24×7. I can help with order tracking, invoices, technical documentation, product specs, and more. What can I help you with today?',time:'Now'},
+  ]);
+  const [input,setInput]=useState('');
+  const msgsRef=useRef(null);
+  const quickReplies=[
+    'Track my latest order',
+    'Download FR-18 spec sheet',
+    'Invoice status INV-0312',
+    'MoistureSeal stock availability',
+    'Talk to a human agent',
+  ];
+  const botResponses={
+    'track':'Your latest order ORD-3841 (FR-18 Fire Rated 18mm × 800 pcs) was dispatched on Mar 4 and is currently en route. ETA is March 8, 2025. Tracking ID: DHL-AE-9921883. Would you like the full delivery note?',
+    'spec':'The FR-18 Fire Rated Spec Sheet (v3.2, updated Feb 28) is available in your Document Vault. It covers EN 13501 Class A1 fire rating, UAE Fire Code compliance data, and installation guidelines. Shall I send you the download link?',
+    'invoice':'Invoice INV-2025-0312 for AED 84,200 is currently due on March 15, 2025. Payment can be made via bank transfer to ENBD Account 102-XXXXXX or via your registered payment portal. Shall I email you the full invoice PDF?',
+    'stock':'MoistureSeal Plus 15mm is currently in stock with 1,800 sheets available at our Jebel Ali warehouse. Lead time is 3–5 business days to any GCC destination. Would you like to place an order or get a quote?',
+    'human':'Connecting you to a live agent now. Our team is available 24×7. Average wait time right now is under 2 minutes. You can also reach us at +971-4-XXX-XXXX.',
+    'default':'Thanks for your query. I\'m looking into that for you right now. For complex requests, I can escalate to a human agent with full context transferred. Anything else I can help with?',
+  };
+  const sendMsg=(text)=>{
+    if(!text.trim())return;
+    const userMsg={role:'user',text,time:'Now'};
+    setMsgs(m=>[...m,userMsg]);
+    setInput('');
+    setTimeout(()=>{
+      const lc=text.toLowerCase();
+      let resp=botResponses.default;
+      if(lc.includes('track')||lc.includes('order'))resp=botResponses.track;
+      else if(lc.includes('spec')||lc.includes('fr-18')||lc.includes('spec sheet'))resp=botResponses.spec;
+      else if(lc.includes('invoice'))resp=botResponses.invoice;
+      else if(lc.includes('stock')||lc.includes('moisture'))resp=botResponses.stock;
+      else if(lc.includes('human')||lc.includes('agent'))resp=botResponses.human;
+      setMsgs(m=>[...m,{role:'bot',text:resp,time:'Just now'}]);
+    },700);
+  };
+  useEffect(()=>{if(msgsRef.current)msgsRef.current.scrollTop=msgsRef.current.scrollHeight;},[msgs]);
+  const tickets=[
+    {id:'#4821',title:'FR-18 Fire Rating Query',status:'Resolved',scls:'p-g',date:'Mar 5'},
+    {id:'#4798',title:'Delivery Delay — DN-0481',status:'Resolved',scls:'p-g',date:'Feb 19'},
+    {id:'#4812',title:'Invoice Discrepancy INV-0298',status:'In Progress',scls:'p-a',date:'Feb 28'},
+  ];
+  return(
+    <>
+      <TopBar title="Support Centre" sub="24 × 7 · AI-powered · Human escalation" setPage={setPage}
+        actions={<button className="tb-btn pri">{I.plus}New Ticket</button>}/>
+      <div className="page" style={{flexDirection:'row',gap:16,flex:1,minHeight:0,overflowY:'visible'}}>
+        <div className="chat-panel" style={{flex:1}}>
+          <div className="chat-head">
+            <div className="chat-av">{I.star}</div>
+            <div className="chat-info">
+              <div className="chat-name">SteelWood AI Assistant</div>
+              <div className="chat-status">Online · 24 × 7 active</div>
+            </div>
+            <button className="tb-btn">{I.phone}Call Agent</button>
+          </div>
+          <div className="chat-msgs" ref={msgsRef}>
+            {msgs.map((m,i)=>(
+              <div key={i} className={`msg ${m.role}`}>
+                <div className={`msg-av ${m.role}`}>{m.role==='bot'?'AI':'DH'}</div>
+                <div>
+                  <div className="msg-bubble">{m.text}</div>
+                  <div className="msg-time">{m.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="chat-input-wrap">
+            <div className="chat-input">
+              {I.chat}
+              <input value={input} onChange={e=>setInput(e.target.value)} placeholder="Type your message…" onKeyDown={e=>e.key==='Enter'&&sendMsg(input)}/>
+              <button className="send-btn" onClick={()=>sendMsg(input)}>{I.send}</button>
+            </div>
+            <div className="quick-btns">
+              {quickReplies.map(q=><button key={q} className="q-btn" onClick={()=>sendMsg(q)}>{q}</button>)}
+            </div>
+          </div>
+        </div>
+        <div style={{width:260,display:'flex',flexDirection:'column',gap:14}}>
+          <div className="card">
+            <div className="ch"><div className="ch-t">{I.shield}Support Channels</div></div>
+            <div className="cb" style={{display:'flex',flexDirection:'column',gap:8}}>
+              {[{ico:'chat',lbl:'Live Chat',sub:'&lt;2 min avg',cls:'g'},{ico:'phone',lbl:'+971-4-XXX-XXXX',sub:'24 × 7 hotline',cls:'b'},{ico:'mail',lbl:'support@steelwood.ae',sub:'SLA 4hr response',cls:'a'},{ico:'doc',lbl:'Knowledge Base',sub:'FAQs & guides',cls:'v'}].map((c,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 11px',background:'var(--s2)',border:'1px solid var(--b1)',borderRadius:8,cursor:'pointer',transition:'all .15s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(0,229,160,.2)'}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--b1)'}}>
+                  <div className={`mc-ico ${c.cls}`} style={{width:28,height:28,borderRadius:7}}>{I[c.ico]}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,fontWeight:500,color:'var(--t1)'}}>{c.lbl}</div>
+                    <div style={{fontSize:10,color:'var(--t3)'}} dangerouslySetInnerHTML={{__html:c.sub}}/>
+                  </div>
+                  <span style={{color:'var(--t3)',fontSize:14}}>›</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card" style={{flex:1}}>
+            <div className="ch"><div className="ch-t">{I.doc}Open Tickets</div></div>
+            <div style={{padding:'4px 8px'}}>
+              {tickets.map((t,i)=>(
+                <div key={i} className="doc-item">
+                  <div className="di-meta">
+                    <div className="di-name">{t.id} · {t.title}</div>
+                    <div className="di-date">{t.date}</div>
+                  </div>
+                  <span className={`pill ${t.scls}`}>{t.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── ACCOUNT PAGE ─── */
+function AccountPage({setPage}){
+  const [tab,setTab]=useState('profile');
+  const tabs=[
+    {id:'profile',icon:'user',lbl:'Profile'},
+    {id:'company',icon:'layers',lbl:'Company'},
+    {id:'security',icon:'key',lbl:'Security'},
+    {id:'notifs',icon:'bell',lbl:'Notifications'},
+  ];
+  return(
+    <>
+      <TopBar title="Account Settings" sub="Danish Hussain · Sales Manager" setPage={setPage}
+        actions={<button className="tb-btn pri">{I.check}Save Changes</button>}/>
+      <div className="page">
+        <div className="acc-grid">
+          <div className="acc-sidebar">
+            <div className="acc-profile-card">
+              <div className="acc-av-big"><div className="acc-av-big-i">DH</div></div>
+              <div className="acc-name">Danish Hussain</div>
+              <div className="acc-role">Sales Manager · Steel Wood Industries FZCO</div>
+              <div className="acc-badge">{I.check}Verified Account</div>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:4}}>
+              {tabs.map(t=>(
+                <div key={t.id} className={`acc-menu-item ${tab===t.id?'on':''}`} onClick={()=>setTab(t.id)}>
+                  {I[t.icon]}{t.lbl}
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{padding:14}}>
+              <div style={{fontSize:11,color:'var(--t3)',marginBottom:8,fontWeight:600,letterSpacing:'.06em',textTransform:'uppercase'}}>Account Plan</div>
+              <div style={{fontFamily:'var(--font-h)',fontSize:15,fontWeight:700,color:'var(--acc)',marginBottom:3}}>Enterprise</div>
+              <div style={{fontSize:11,color:'var(--t3)',marginBottom:12}}>All features · Unlimited docs · Priority support</div>
+              <button className="tb-btn" style={{width:'100%',justifyContent:'center'}}>Manage Plan</button>
+            </div>
+          </div>
+          <div className="card">
+            <div className="ch"><div className="ch-t">{I[tabs.find(t=>t.id===tab)?.icon]}{tabs.find(t=>t.id===tab)?.lbl} Settings</div></div>
+            <div className="cb">
+              {tab==='profile'&&(
+                <>
+                  <div className="form-section">
+                    <div className="form-section-title">{I.user}Personal Information</div>
+                    <div className="form-row">
+                      <div className="form-field"><label className="form-label">First Name</label><input className="form-input" defaultValue="Danish"/></div>
+                      <div className="form-field"><label className="form-label">Last Name</label><input className="form-input" defaultValue="Hussain"/></div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-field"><label className="form-label">Email</label><input className="form-input" defaultValue="danish@steelwood.ae"/></div>
+                      <div className="form-field"><label className="form-label">Phone</label><input className="form-input" defaultValue="+971-50-XXX-XXXX"/></div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-field"><label className="form-label">Job Title</label><input className="form-input" defaultValue="Sales Manager"/></div>
+                      <div className="form-field"><label className="form-label">Department</label><input className="form-input" defaultValue="Commercial"/></div>
+                    </div>
+                  </div>
+                  <div className="form-section">
+                    <div className="form-section-title">{I.layers}Preferences</div>
+                    <div className="form-row">
+                      <div className="form-field"><label className="form-label">Language</label><input className="form-input" defaultValue="English (UAE)"/></div>
+                      <div className="form-field"><label className="form-label">Currency</label><input className="form-input" defaultValue="AED — UAE Dirham"/></div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-field"><label className="form-label">Timezone</label><input className="form-input" defaultValue="Asia/Dubai (UTC+4)"/></div>
+                      <div className="form-field"><label className="form-label">Date Format</label><input className="form-input" defaultValue="DD/MM/YYYY"/></div>
+                    </div>
+                  </div>
+                </>
+              )}
+              {tab==='company'&&(
+                <div className="form-section">
+                  <div className="form-section-title">{I.layers}Company Details</div>
+                  <div className="form-row">
+                    <div className="form-field"><label className="form-label">Company Name</label><input className="form-input" defaultValue="Steel Wood Industries FZCO"/></div>
+                    <div className="form-field"><label className="form-label">Trade Licence No.</label><input className="form-input" defaultValue="JAFZA-XXXX-2019"/></div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-field"><label className="form-label">TRN (Tax Reg. No.)</label><input className="form-input" defaultValue="100XXXXXXXXX003"/></div>
+                    <div className="form-field"><label className="form-label">Credit Limit</label><input className="form-input" defaultValue="AED 500,000" disabled/></div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-field" style={{gridColumn:'1/-1'}}><label className="form-label">Registered Address</label><input className="form-input" defaultValue="Jebel Ali Free Zone, Dubai, UAE"/></div>
+                  </div>
+                </div>
+              )}
+              {tab==='security'&&(
+                <div className="form-section">
+                  <div className="form-section-title">{I.key}Security Settings</div>
+                  <div className="form-row">
+                    <div className="form-field"><label className="form-label">Current Password</label><input className="form-input" type="password" placeholder="••••••••"/></div>
+                    <div className="form-field"><label className="form-label">New Password</label><input className="form-input" type="password" placeholder="••••••••"/></div>
+                  </div>
+                  {[{lbl:'Two-Factor Authentication',sub:'Secure your account with SMS or Authenticator app',on:true},{lbl:'Login Notifications',sub:'Email alert on new device login',on:true},{lbl:'API Access',sub:'Enable API key for integrations',on:false}].map((s,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 14px',background:'var(--s2)',border:'1px solid var(--b1)',borderRadius:9,marginBottom:10}}>
+                      <div><div style={{fontSize:13,fontWeight:500,color:'var(--t1)'}}>{s.lbl}</div><div style={{fontSize:11,color:'var(--t3)',marginTop:2}}>{s.sub}</div></div>
+                      <div style={{width:36,height:20,borderRadius:10,background:s.on?'var(--acc)':'var(--b2)',cursor:'pointer',position:'relative',transition:'background .2s'}}>
+                        <div style={{position:'absolute',top:2,left:s.on?18:2,width:16,height:16,borderRadius:50,background:'#fff',transition:'left .2s'}}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {tab==='notifs'&&(
+                <div className="form-section">
+                  <div className="form-section-title">{I.bell}Notification Preferences</div>
+                  {[{lbl:'Order Status Updates',sub:'Dispatched, delivered, delays',on:true},{lbl:'Invoice Due Reminders',sub:'7 days and 1 day before due date',on:true},{lbl:'New Offers & Promotions',sub:'Account-specific deals and flash offers',on:true},{lbl:'Delivery Tracking Alerts',sub:'Real-time GPS and customs updates',on:false},{lbl:'Support Ticket Updates',sub:'Agent replies and ticket resolution',on:true},{lbl:'Stock Availability Alerts',sub:'When your preferred products are back in stock',on:false}].map((n,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 14px',background:'var(--s2)',border:'1px solid var(--b1)',borderRadius:9,marginBottom:10}}>
+                      <div><div style={{fontSize:13,fontWeight:500,color:'var(--t1)'}}>{n.lbl}</div><div style={{fontSize:11,color:'var(--t3)',marginTop:2}}>{n.sub}</div></div>
+                      <div style={{width:36,height:20,borderRadius:10,background:n.on?'var(--acc)':'var(--b2)',cursor:'pointer',position:'relative',transition:'background .2s'}}>
+                        <div style={{position:'absolute',top:2,left:n.on?18:2,width:16,height:16,borderRadius:50,background:'#fff',transition:'left .2s'}}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── OFFERS PAGE ─── */
+function OffersPage({setPage}){
+  const offers=[
+    {tag:'12% OFF',tcls:'g',name:'FireGuard FR-18 Bulk Order Discount',sub:'Min. 500 sheets · FSC Certified · Automatically applied at checkout',exp:'Mar 15, 2025',savings:'AED 5,760 saved on 1000 sheets',ico:'🔥'},
+    {tag:'FLASH',tcls:'a',name:'MoistureSeal Plus — Buy 200 Get 20 Free',sub:'Limited to this week · GCC delivery included · No min. order code needed',exp:'Today midnight',savings:'Worth AED 840 free stock',ico:'💧'},
+    {tag:'LEED',tcls:'b',name:'FSC Chipboard 18mm — Project Rate',sub:'AED 42/sheet (was AED 48) · Requires LEED project ID · Stackable with bulk discount',exp:'Mar 20, 2025',savings:'Save AED 6/sheet on qualifying orders',ico:'🌿'},
+    {tag:'CLEARANCE',tcls:'a',name:'Non-FR 15mm Boards — Q1 Clearance',sub:'18% discount off list price · Last 300 sheets in Jebel Ali warehouse · First come first served',exp:'While stocks last',savings:'AED 7.20/sheet off',ico:'📦'},
+    {tag:'NEW ARRIVAL',tcls:'b',name:'E0 MDF Premium — Launch Offer',sub:'First 50 customers get 10% off launch pricing · Zero formaldehyde · Smooth lacquering surface',exp:'Apr 1, 2025',savings:'Save up to AED 5/sheet',ico:'✨'},
+    {tag:'BUNDLE',tcls:'g',name:'FR-18 + Acoustic Combo Pack',sub:'Order both products in single PO and get waived delivery charges across GCC',exp:'Ongoing',savings:'AED 1,200–3,500 delivery savings',ico:'🎁'},
+  ];
+  return(
+    <>
+      <TopBar title="Offers & Promotions" sub="Personalised deals for your account" setPage={setPage}
+        actions={<button className="tb-btn">{I.bell}Alert Me on New Deals</button>}/>
+      <div className="page">
+        <div style={{background:'linear-gradient(135deg,#071A12,#07121E)',border:'1px solid rgba(0,229,160,.2)',borderRadius:12,padding:'18px 22px',display:'flex',alignItems:'center',gap:16}}>
+          <div style={{width:44,height:44,borderRadius:10,background:'rgba(0,229,160,.12)',border:'1px solid rgba(0,229,160,.25)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--acc)',flexShrink:0}}>{I.star}</div>
+          <div style={{flex:1}}>
+            <div style={{fontFamily:'var(--font-h)',fontSize:14,fontWeight:700,color:'var(--t1)',marginBottom:3}}>Enterprise Account Benefits Active</div>
+            <div style={{fontSize:12,color:'var(--t3)'}}>As a verified GCC B2B customer, you have access to exclusive account-level pricing, LEED project rates, and priority allocation during peak demand.</div>
+          </div>
+          <div style={{textAlign:'right',flexShrink:0}}>
+            <div style={{fontFamily:'var(--font-h)',fontSize:22,fontWeight:800,color:'var(--acc)'}}>6</div>
+            <div style={{fontSize:11,color:'var(--t3)'}}>Active Offers</div>
+          </div>
+        </div>
+        <div className="g2">
+          {offers.map((o,i)=>(
+            <div key={i} className="card" style={{cursor:'pointer',transition:'all .2s'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(0,229,160,.25)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--b1)'}>
+              <div style={{padding:'14px 16px'}}>
+                <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:12}}>
+                  <span style={{fontSize:32}}>{o.ico}</span>
+                  <div style={{flex:1}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:5}}>
+                      <span className={`o-tag ${o.tcls}`}>{o.tag}</span>
+                      <span style={{fontSize:11,color:'var(--t3)',display:'flex',alignItems:'center',gap:4}}>{I.clock} Expires: {o.exp}</span>
+                    </div>
+                    <div style={{fontFamily:'var(--font-h)',fontSize:14,fontWeight:700,color:'var(--t1)',marginBottom:4}}>{o.name}</div>
+                    <div style={{fontSize:12,color:'var(--t2)',lineHeight:1.5}}>{o.sub}</div>
+                  </div>
+                </div>
+                <div style={{background:'rgba(0,229,160,.06)',border:'1px solid rgba(0,229,160,.12)',borderRadius:7,padding:'8px 12px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <span style={{fontSize:11,color:'var(--acc)',fontWeight:600}}>💰 {o.savings}</span>
+                  <button className="tb-btn pri" style={{padding:'5px 12px',fontSize:11}}>Claim Offer →</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <AgentBar/>
+    </>
+  );
+}
+
+/* ─── DELIVERIES PAGE ─── */
+function DeliveryPage({setPage}){
+  const deliveries=[
+    {id:'DN-0512',cust:'Starwood Industries',prod:'FR-18 × 800 pcs',pct:72,cls:'g',status:'En Route',scls:'p-g',eta:'Mar 8',driver:'Ahmad K.',truck:'DXB-A-12345'},
+    {id:'DN-0509',cust:'Al Habtoor Group',prod:'MoistureSeal × 400 pcs',pct:45,cls:'a',status:'Customs',scls:'p-a',eta:'Mar 11',driver:'Pending',truck:'DXB-C-77821'},
+    {id:'DN-0503',cust:'Intermetal FZCO',prod:'Acoustic 12mm × 200 pcs',pct:20,cls:'b',status:'Packed',scls:'p-b',eta:'Mar 14',driver:'Unassigned',truck:'—'},
+    {id:'DN-0498',cust:'Intermetal FZCO',prod:'Chipboard Non-FR × 600 pcs',pct:100,cls:'g',status:'Delivered',scls:'p-g',eta:'Done',driver:'Ravi S.',truck:'SHJ-B-55490'},
+    {id:'DN-0481',cust:'Al Habtoor Group',prod:'FR-18 × 300 pcs',pct:100,cls:'g',status:'Delivered',scls:'p-g',eta:'Done',driver:'Mohammed A.',truck:'DXB-A-90021'},
+  ];
+  return(
+    <>
+      <TopBar title="Delivery Tracker" sub="Live shipment monitoring" setPage={setPage}
+        actions={<button className="tb-btn">{I.dl}Export Report</button>}/>
+      <div className="page">
+        <div className="g4">
+          {[{val:'3',lbl:'Active Shipments',mc:''},{val:'2',lbl:'Delivered This Week',mc:''},{val:'1',lbl:'In Customs',mc:'a'},{val:'0',lbl:'Delayed',mc:'r'}].map((m,i)=>(
+            <div key={i} className={`mc ${m.mc}`}><div className="mc-v">{m.val}</div><div className="mc-l">{m.lbl}</div></div>
+          ))}
+        </div>
+        {deliveries.map((d,i)=>(
+          <div key={i} className="card" style={{padding:'16px 20px'}}>
+            <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:12}}>
+              <div>
+                <div style={{fontFamily:'var(--font-h)',fontSize:14,fontWeight:700,color:'var(--t1)',marginBottom:3}}>{d.id} — {d.cust}</div>
+                <div style={{fontSize:12,color:'var(--t2)'}}>{d.prod}</div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <span className={`pill ${d.scls}`}>{d.status}</span>
+                <span style={{fontSize:12,color:'var(--t3)'}}>ETA: {d.eta}</span>
+              </div>
+            </div>
+            <div className="prog-bar" style={{height:6,marginBottom:8}}><div className={`prog-fill ${d.cls}`} style={{width:d.pct+'%'}}/></div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--t3)'}}>
+              <span>Order Placed → Warehouse → {d.status==='Delivered'?'✅ Delivered':'In Transit'}</span>
+              <span style={{display:'flex',gap:16}}>
+                <span>🚛 {d.truck}</span>
+                <span>👤 {d.driver}</span>
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <AgentBar/>
+    </>
+  );
+}
+
+/* ─── INVOICES PAGE ─── */
+function InvoicesPage({setPage}){
+  const invs=[
+    {id:'INV-2025-0312',date:'Mar 1',due:'Mar 15',val:'AED 84,200',status:'Due Soon',scls:'p-a',order:'ORD-3841',vat:'AED 4,210'},
+    {id:'INV-2025-0298',date:'Feb 21',due:'Mar 7',val:'AED 36,750',status:'Paid',scls:'p-g',order:'ORD-3817',vat:'AED 1,838'},
+    {id:'INV-2025-0271',date:'Feb 5',due:'Feb 19',val:'AED 120,000',status:'Overdue',scls:'p-r',order:'ORD-3791',vat:'AED 6,000'},
+    {id:'INV-2025-0244',date:'Jan 28',due:'Feb 11',val:'AED 58,400',status:'Paid',scls:'p-g',order:'ORD-3761',vat:'AED 2,920'},
+    {id:'INV-2025-0231',date:'Jan 15',due:'Jan 29',val:'AED 22,100',status:'Paid',scls:'p-g',order:'ORD-3748',vat:'AED 1,105'},
+  ];
+  return(
+    <>
+      <TopBar title="Tax Invoices" sub="VAT-compliant invoice records" setPage={setPage}
+        actions={<><button className="tb-btn">{I.dl}Export All</button><button className="tb-btn pri">{I.plus}Request Invoice</button></>}/>
+      <div className="page">
+        <div className="g4">
+          {[{val:'AED 241K',lbl:'Outstanding',mc:'a'},{val:'AED 120K',lbl:'Overdue',mc:'r'},{val:'AED 117K',lbl:'Paid This Month',mc:''},{val:'5% VAT',lbl:'Applied Rate',mc:''}].map((m,i)=>(
+            <div key={i} className={`mc ${m.mc}`}><div className="mc-v">{m.val}</div><div className="mc-l">{m.lbl}</div></div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="ch"><div className="ch-t">{I.dollar}Invoice Register</div></div>
+          <table className="tbl">
+            <thead><tr><th>Invoice No.</th><th>Date</th><th>Due Date</th><th>Order Ref</th><th>Net Amount</th><th>VAT (5%)</th><th>Total</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {invs.map((inv,i)=>(
+                <tr key={i}>
+                  <td className="td-b">{inv.id}</td>
+                  <td>{inv.date}</td>
+                  <td>{inv.due}</td>
+                  <td style={{color:'var(--acc)'}}>{inv.order}</td>
+                  <td className="td-b">{inv.val}</td>
+                  <td>{inv.vat}</td>
+                  <td className="td-b">{inv.val}</td>
+                  <td><span className={`pill ${inv.scls}`}>{inv.status}</span></td>
+                  <td><button className="tb-btn" style={{padding:'4px 10px',fontSize:11}}>{I.dl}PDF</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <AgentBar/>
+    </>
+  );
+}
+
+/* ─── SETTINGS PAGE ─── */
+function SettingsPage({setPage}){
+  return(
+    <>
+      <TopBar title="Settings" sub="Portal configuration" setPage={setPage}/>
+      <div className="page">
+        <div className="g2">
+          {[{ico:'bell',t:'Notifications',s:'Configure alerts for orders, invoices, deliveries'},{ico:'shield',t:'Security & Access',s:'2FA, API keys, session management'},{ico:'user',t:'Team Members',s:'Manage sub-accounts and permissions'},{ico:'tag',t:'Offer Preferences',s:'Set product categories and deal alerts'},{ico:'truck',t:'Delivery Addresses',s:'Manage GCC delivery locations'},{ico:'dollar',t:'Payment Methods',s:'LC, TT, cheque discounting settings'}].map((s,i)=>(
+            <div key={i} className="card" style={{padding:'18px 20px',cursor:'pointer',transition:'all .2s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(0,229,160,.2)';e.currentTarget.style.transform='translateY(-2px)'}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--b1)';e.currentTarget.style.transform=''}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div className="mc-ico g">{I[s.ico]}</div>
+                <div><div style={{fontFamily:'var(--font-h)',fontSize:14,fontWeight:700,color:'var(--t1)',marginBottom:3}}>{s.t}</div><div style={{fontSize:12,color:'var(--t3)'}}>{s.s}</div></div>
+                <span style={{marginLeft:'auto',color:'var(--t3)'}}>{I.arr}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── ROOT APP ─── */
+function App(){
+  const [auth,setAuth]=useState(false);
+  const [page,setPage]=useState('dashboard');
+  if(!auth) return <LoginPage onLogin={()=>setAuth(true)}/>;
+  const pages={
+    dashboard:<Dashboard setPage={setPage}/>,
+    orders:<OrdersPage setPage={setPage}/>,
+    docs:<DocsPage setPage={setPage}/>,
+    delivery:<DeliveryPage setPage={setPage}/>,
+    invoices:<InvoicesPage setPage={setPage}/>,
+    catalogue:<CataloguePage setPage={setPage}/>,
+    offers:<OffersPage setPage={setPage}/>,
+    support:<SupportPage setPage={setPage}/>,
+    account:<AccountPage setPage={setPage}/>,
+    settings:<SettingsPage setPage={setPage}/>,
+  };
+  return(
+    <div className="app">
+      <Ticker/>
+      <div className="body">
+        <Sidebar page={page} setPage={setPage} onLogout={()=>setAuth(false)}/>
+        <div className="main">{pages[page]||pages.dashboard}</div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
