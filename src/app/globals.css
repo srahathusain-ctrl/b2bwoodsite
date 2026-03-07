@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-bg text-text;
+  }
+}
+
+@layer components {
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-muted transition-all hover:bg-surface2 hover:text-text cursor-pointer whitespace-nowrap;
+  }
+  .sidebar-item.active {
+    @apply bg-gold/10 text-gold border border-gold/15;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider;
+  }
+  .badge-green {
+    @apply bg-green/15 text-green border border-green/20;
+  }
+  .badge-gold {
+    @apply bg-gold/15 text-gold border border-gold/20;
+  }
+  .badge-red {
+    @apply bg-red/15 text-red border border-red/20;
+  }
+  .badge-blue {
+    @apply bg-blue/15 text-blue border border-blue/20;
+  }
+  .badge-orange {
+    @apply bg-orange/15 text-orange border border-orange/20;
+  }
+
+  .filter-chip {
+    @apply px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted transition-all hover:border-border2 hover:text-text cursor-pointer;
+  }
+  .filter-chip.active {
+    @apply bg-gold/10 border-gold/40 text-gold;
+  }
+
+  /* Recharts tooltip customization */
+  .recharts-tooltip-wrapper .recharts-default-tooltip {
+    @apply !bg-card !border-border2 !rounded-lg !p-2 !text-xs font-sans !text-text;
+  }
+}
