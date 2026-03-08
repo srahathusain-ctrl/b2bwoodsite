@@ -7,11 +7,13 @@ import { Card, CardContent } from "@/components/ui/Card";
 import FilterChip from "@/components/ui/FilterChip";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { useUIStore } from "@/store/ui-store";
 
 const DOC_CATEGORIES = ["All", "Invoice", "Technical", "Certification", "LEED", "Logistics"];
 
 export default function DocumentsPage() {
   const [category, setCategory] = useState("All");
+  const { addToast } = useUIStore();
 
   const { data: docs, isLoading } = useQuery({
     queryKey: ["documents", category],
@@ -78,12 +80,28 @@ export default function DocumentsPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <Button variant="ghost" size="sm" className="flex-1 text-xs h-7">
-                    Download
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
+                  {doc.file ? (
+                    <a
+                      href={doc.file}
+                      download={`${doc.name.replace(/\s+/g, "_")}.pdf`}
+                      onClick={() => addToast({ type: "success", title: "Downloading", message: doc.name })}
+                      className="flex-1 inline-flex items-center justify-center h-7 text-xs rounded-[7px] border border-border text-muted hover:border-gold/40 hover:text-gold transition-all"
+                    >
+                      Download
+                    </a>
+                  ) : (
+                    <Button variant="ghost" size="sm" className="flex-1 text-xs h-7" disabled>
+                      Download
+                    </Button>
+                  )}
+                  <a
+                    href={doc.file || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center h-7 px-2 text-xs rounded-[7px] border border-border text-muted hover:border-gold/40 hover:text-gold transition-all"
+                  >
                     Preview
-                  </Button>
+                  </a>
                 </div>
               </CardContent>
             </Card>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, getVolumePrice } from "@/services/products";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -171,15 +172,15 @@ function ProductCard({ product }: { product: Product }) {
             Request Quote
           </Button>
           {product.tdsAvailable && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs px-2"
-              title="Technical Data Sheet"
-              onClick={() => addToast({ type: "info", title: "TDS download", message: `${product.name} data sheet` })}
+            <a
+              href={`/tds/TDS_${product.sku.trim()}.pdf`}
+              download={`TDS_${product.sku.trim()}.pdf`}
+              onClick={() => addToast({ type: "success", title: "Downloading TDS", message: `${product.name} data sheet` })}
+              className="inline-flex items-center justify-center h-7 px-2 text-xs rounded-[7px] border border-border text-muted hover:border-gold/40 hover:text-gold transition-all"
+              title="Download Technical Data Sheet"
             >
               TDS ↓
-            </Button>
+            </a>
           )}
         </div>
       </CardContent>
@@ -188,10 +189,19 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default function ProductsPage() {
-  const [category, setCategory] = useState("All");
+  const searchParams = useSearchParams();
+  const [category, setCategory] = useState(() => searchParams.get("category") || "All");
   const [application, setApplication] = useState("All Applications");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
   const [showAppFilters, setShowAppFilters] = useState(false);
+
+  // Re-seed filters whenever URL params change (e.g. ticker navigation)
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    const q = searchParams.get("search");
+    if (cat) setCategory(cat);
+    if (q) setSearch(q);
+  }, [searchParams]);
   const { data: products, isLoading } = useQuery({
     queryKey: ["products", category, application, search],
     queryFn: () => getProducts(category, application, search),

@@ -23,11 +23,14 @@ export const ORDER_STATUSES = [
 
 export const PRODUCT_CATEGORIES = [
   "All",
-  "Chipboard",
-  "MDF",
-  "FireGuard (FR)",
-  "MoistureSeal",
+  "Raw Panels",
+  "MFC Panels",
   "Acoustic",
+  "Specialist",
+  "Softwood",
+  "Hardwood",
+  "Engineered Wood",
+  "Accessories",
   "LEED Certified",
 ];
 

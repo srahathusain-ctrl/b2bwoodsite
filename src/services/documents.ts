@@ -10,6 +10,7 @@ const MOCK_DOCUMENTS: Document[] = [
     uploadedAt: "2025-03-10",
     orderId: "SW-2024-0892",
     tags: ["fire-rated", "submittal", "FR-18"],
+    file: "/tds/TDS_BD-PB-006.pdf",
   },
   {
     id: "D002",
@@ -20,6 +21,7 @@ const MOCK_DOCUMENTS: Document[] = [
     uploadedAt: "2025-03-01",
     orderId: "SW-2024-0892",
     tags: ["invoice", "tax", "2025"],
+    file: "/tds/TDS_BD-MFC-001.pdf",
   },
   {
     id: "D003",
@@ -29,6 +31,7 @@ const MOCK_DOCUMENTS: Document[] = [
     size: "890 KB",
     uploadedAt: "2025-02-15",
     tags: ["FSC", "certification", "LEED"],
+    file: "/tds/TDS_BD-PB-001.pdf",
   },
   {
     id: "D004",
@@ -38,6 +41,7 @@ const MOCK_DOCUMENTS: Document[] = [
     size: "3.1 MB",
     uploadedAt: "2025-02-10",
     tags: ["LEED", "sustainability", "credits"],
+    file: "/tds/TDS_BD-AC-001.pdf",
   },
   {
     id: "D005",
@@ -48,6 +52,7 @@ const MOCK_DOCUMENTS: Document[] = [
     uploadedAt: "2025-03-12",
     orderId: "SW-2024-0892",
     tags: ["delivery", "logistics", "DO"],
+    file: "/tds/TDS_BD-PB-003.pdf",
   },
   {
     id: "D006",
@@ -57,6 +62,7 @@ const MOCK_DOCUMENTS: Document[] = [
     size: "1.8 MB",
     uploadedAt: "2025-01-20",
     tags: ["moisture-resistant", "technical", "TDS"],
+    file: "/tds/TDS_BD-PB-004.pdf",
   },
 ];
 

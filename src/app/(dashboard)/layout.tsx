@@ -6,32 +6,32 @@ import LiveTicker from "@/components/layout/LiveTicker";
 import Sidebar from "@/components/layout/Sidebar";
 import TopBar from "@/components/layout/TopBar";
 import { ToastContainer } from "@/components/ui/Toast";
+import RFQModal from "@/components/ui/RFQModal";
+import { useQuery } from "@tanstack/react-query";
+import { getProducts } from "@/services/products";
 
-const pageTitles: Record<string, { title: string; subtitle: string }> = {
-  dashboard: { title: "Dashboard", subtitle: "Welcome to your B2B portal" },
-  orders: { title: "Orders", subtitle: "Manage and track your orders" },
-  products: { title: "Product Catalog", subtitle: "Browse SteelWood products" },
-  documents: { title: "Documents", subtitle: "Certificates, invoices & submittals" },
-  finance: { title: "Finance & Invoices", subtitle: "Invoices, payments & credit" },
-  offers: { title: "Offers & Deals", subtitle: "Exclusive pricing for your account" },
-  analytics: { title: "Analytics", subtitle: "Business intelligence & insights" },
-  ai: { title: "AI Assistant", subtitle: "Powered by Claude · Available 24×7" },
-  notifications: { title: "Notifications", subtitle: "Alerts, updates & actions" },
-  settings: { title: "Settings", subtitle: "Account & portal preferences" },
-};
+// Pages that should take full height without padding (flex layouts)
+const FULL_HEIGHT_PAGES = ["/dashboard", "/ai"];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const segment = pathname.split("/")[1] || "dashboard";
-  const page = pageTitles[segment] || pageTitles.dashboard;
+
+  const { data: products } = useQuery({
+    queryKey: ["products", "All", "All Applications", ""],
+    queryFn:  () => getProducts("All", "All Applications", ""),
+    staleTime: 60_000,
+  });
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center h-screen bg-bg">
-        <div className="flex items-center gap-3 text-muted">
-          <div className="w-5 h-5 border-2 border-border border-t-gold rounded-full animate-spin" />
-          Loading portal…
+      <div className="flex items-center justify-center h-screen" style={{ background: "#f0ece4" }}>
+        <div className="flex items-center gap-3" style={{ color: "#7a7268" }}>
+          <div
+            className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: "#ece6dd", borderTopColor: "#b8924a" }}
+          />
+          <span className="font-mono text-sm">Loading portal…</span>
         </div>
       </div>
     );
@@ -41,24 +41,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  const name = session.user?.name?.split(" ")[0] || "there";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const isFullHeight = FULL_HEIGHT_PAGES.includes(pathname);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-bg">
-      <LiveTicker />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <TopBar
-            title={page.title}
-            subtitle={`${greeting}, ${name} · ${page.subtitle}`}
-          />
-          <div className="flex-1 overflow-auto p-4 lg:p-6">{children}</div>
-        </main>
+    <div className="flex h-screen overflow-hidden" style={{ background: "#f0ece4" }}>
+      {/* 48px icon rail */}
+      <Sidebar />
+
+      {/* Main column */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Topbar */}
+        <TopBar />
+
+        {/* Ticker */}
+        <LiveTicker />
+
+        {/* Content area */}
+        <div className={isFullHeight ? "flex-1 overflow-hidden flex flex-col" : "flex-1 overflow-auto p-4 lg:p-6"}>
+          {children}
+        </div>
       </div>
+
+      {/* Global overlays */}
       <ToastContainer />
+      <RFQModal products={products || []} />
     </div>
   );
 }

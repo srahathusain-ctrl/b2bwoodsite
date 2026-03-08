@@ -1,28 +1,25 @@
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 disabled:pointer-events-none disabled:opacity-50",
+  'inline-flex items-center justify-center rounded-lg text-[12.5px] font-semibold transition-all cursor-pointer whitespace-nowrap border border-transparent focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: "bg-gold text-black hover:bg-gold/90 font-semibold",
-        ghost:
-          "border border-border bg-transparent text-muted hover:border-gold hover:text-gold",
-        danger:
-          "border border-red/30 bg-red/10 text-red hover:bg-red/20",
-        secondary:
-          "bg-surface2 border border-border text-text hover:border-border2",
+        primary:   'bg-gold text-text-2 border-gold hover:bg-gold-2',
+        ghost:     'bg-transparent text-muted border-border2 hover:bg-[#e8e2d8] hover:text-text-2',
+        danger:    'bg-red/10 text-red border-red/25 hover:bg-red/15',
+        secondary: 'bg-white text-text-2 border-border2 hover:border-border3 hover:bg-bg',
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-6 text-base",
+        default: 'h-8 px-[14px]',
+        sm:      'h-7 px-[10px] text-[11.5px] rounded-[7px]',
+        lg:      'h-10 px-5 text-sm rounded-[10px]',
       },
     },
-    defaultVariants: { variant: "primary", size: "default" },
+    defaultVariants: { variant: 'primary', size: 'default' },
   }
 );
 
@@ -34,7 +31,7 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+    const Comp = asChild ? Slot : 'button';
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
@@ -44,6 +41,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
-Button.displayName = "Button";
+Button.displayName = 'Button';
 
 export default Button;

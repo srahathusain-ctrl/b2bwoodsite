@@ -68,6 +68,7 @@ export interface Document {
   uploadedAt: string;
   orderId?: string;
   tags: string[];
+  file?: string;
 }
 
 export interface Offer {
