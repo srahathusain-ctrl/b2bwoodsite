@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, getVolumePrice } from "@/services/products";
@@ -12,6 +12,7 @@ import RFQModal from "@/components/ui/RFQModal";
 import { PRODUCT_CATEGORIES, PRODUCT_APPLICATIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
+import { useAdminStore } from "@/store/admin-store";
 import type { Product } from "@/types";
 
 function StockPill({ stock }: { stock: number }) {
@@ -188,7 +189,7 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const [category, setCategory] = useState(() => searchParams.get("category") || "All");
   const [application, setApplication] = useState("All Applications");
@@ -202,11 +203,18 @@ export default function ProductsPage() {
     if (cat) setCategory(cat);
     if (q) setSearch(q);
   }, [searchParams]);
-  const { data: products, isLoading } = useQuery({
+  const { data: rawProducts, isLoading } = useQuery({
     queryKey: ["products", category, application, search],
     queryFn: () => getProducts(category, application, search),
     staleTime: 30_000,
   });
+
+  const { priceOverrides } = useAdminStore();
+  const products = rawProducts?.map((p) =>
+    priceOverrides[p.id] !== undefined
+      ? { ...p, price: priceOverrides[p.id] }
+      : p
+  );
 
   const clearFilters = () => {
     setSearch("");
@@ -299,5 +307,18 @@ export default function ProductsPage() {
 
       <RFQModal products={products || []} />
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-16 text-muted gap-2">
+        <div className="w-5 h-5 border-2 border-border border-t-gold rounded-full animate-spin" />
+        Loading products…
+      </div>
+    }>
+      <ProductsContent />
+    </Suspense>
   );
 }

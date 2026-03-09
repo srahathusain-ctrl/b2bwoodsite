@@ -184,3 +184,29 @@ export interface Toast {
   title: string;
   message?: string;
 }
+
+export interface TickerItem {
+  id: string;
+  type: "flash" | "promo" | "leed" | "bundle" | "clear" | "free";
+  text: string;
+  href: string;
+  active: boolean;
+}
+
+export interface CustomerRecord {
+  id: string;
+  companyName: string;
+  tradeLicense: string;
+  trn: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  country: string;
+  businessType: "Contractor" | "Fit-Out" | "Developer" | "Retailer" | "Other";
+  estimatedMonthlyVolume: string;
+  creditLimit: number;
+  creditUsed: number;
+  paymentTerms: string;
+  status: "pending" | "active" | "suspended";
+  joinedAt: string;
+}

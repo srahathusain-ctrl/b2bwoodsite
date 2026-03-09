@@ -1,13 +1,6 @@
 "use client";
 
-const TICKER_ITEMS = [
-  { type: "flash",  text: "FireGuard FR-18 — 12% OFF on 500+ sheets · Valid till 15 Mar", href: "/products?search=FR" },
-  { type: "promo",  text: "MoistureSeal Plus — Buy 200 Get 20 FREE · Ends midnight",        href: "/products?search=MR" },
-  { type: "leed",   text: "FSC Chipboard — AED 42/sheet · Code LEED10",                     href: "/products?category=LEED+Certified" },
-  { type: "bundle", text: "Acoustic + FR-18 Combo · Special GCC pricing",                   href: "/products?category=Acoustic" },
-  { type: "clear",  text: "Non-FR 15mm · 18% off · Last 300 sheets · Jebel Ali",            href: "/products?search=15mm" },
-  { type: "free",   text: "FREE DELIVERY on orders above AED 15,000 · All GCC",             href: "/products" },
-];
+import { useAdminStore } from "@/store/admin-store";
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
   flash:  { label: "🔥 FLASH",     color: "#c45e38" },
@@ -19,8 +12,13 @@ const TYPE_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default function LiveTicker() {
+  const { tickerItems } = useAdminStore();
+  const activeItems = tickerItems.filter((t) => t.active);
+
   // Duplicate for seamless loop
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  const items = [...activeItems, ...activeItems];
+
+  if (activeItems.length === 0) return null;
 
   return (
     <div
@@ -31,9 +29,9 @@ export default function LiveTicker() {
         borderBottom: "1px solid rgba(184,146,74,.24)",
       }}
     >
-      {/* Label */}
+      {/* Live badge */}
       <div
-        className="flex items-center gap-[5px] px-3 h-full flex-shrink-0 font-mono font-extrabold text-text uppercase tracking-[.1em]"
+        className="flex items-center gap-[5px] px-3 h-full flex-shrink-0 font-mono font-extrabold uppercase tracking-[.1em]"
         style={{ fontSize: 11, background: "#b8924a", color: "#1a1612" }}
       >
         <span
@@ -44,8 +42,7 @@ export default function LiveTicker() {
       </div>
 
       {/* Scrolling text */}
-      <div className="flex-1 overflow-hidden relative" style={{ paddingLeft: 0 }}>
-        {/* Fade edges */}
+      <div className="flex-1 overflow-hidden relative">
         <div
           className="absolute top-0 left-0 bottom-0 w-8 pointer-events-none"
           style={{ background: "linear-gradient(to right, rgba(184,146,74,.05), transparent)", zIndex: 2 }}
@@ -59,10 +56,10 @@ export default function LiveTicker() {
           style={{ fontSize: 15, fontFamily: "var(--font-dm-mono), monospace", color: "#7a7268", letterSpacing: ".015em", paddingLeft: 20 }}
         >
           {items.map((item, i) => {
-            const meta = TYPE_LABELS[item.type];
+            const meta = TYPE_LABELS[item.type] ?? { label: item.type, color: "#b8924a" };
             return (
               <a
-                key={i}
+                key={`${item.id}-${i}`}
                 href={item.href}
                 className="cursor-pointer hover:opacity-80 transition-opacity"
                 style={{ textDecoration: "none" }}

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useUIStore } from "@/store/ui-store";
 
 /* ─── Types ─── */
 interface Message { role: "user" | "ai"; text: string; }
@@ -101,9 +99,7 @@ function TypingDots() {
 
 
 export default function DashboardPage() {
-  const router                = useRouter();
   const { data: session }     = useSession();
-  const { addToast }          = useUIStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput]     = useState("");
   const [typing, setTyping]   = useState(false);

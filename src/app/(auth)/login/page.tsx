@@ -1,40 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("danish@steelwood.ae");
+function LoginContent() {
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const [email,    setEmail]    = useState("danish@steelwood.ae");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState("");
+  const [success,  setSuccess]  = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("registered") === "1") {
+      setSuccess("Account created! You can now sign in.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
+
     const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
+
     setLoading(false);
+
     if (result?.ok) {
-      router.push("/dashboard");
+      const res     = await fetch("/api/auth/session");
+      const session = await res.json();
+      const role    = (session?.user as { role?: string })?.role;
+      if (role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     } else {
-      setError("Invalid credentials. Try demo password.");
+      setError("Invalid credentials. Please check your email and password.");
     }
   };
 
   const features = [
-    ["📋", "Live Order & Delivery Tracking", "Real-time status, dispatch alerts, POD collection"],
-    ["🗂️", "Document Vault", "Tax invoices, technical submittals, LEED compliance"],
-    ["🏷️", "Personalised Offers Feed", "Account-specific pricing, LEED discounts, flash deals"],
-    ["✦", "24×7 AI Support", "Instant answers, human escalation, SLA tracking"],
+    ["📋", "Live Order & Delivery Tracking",  "Real-time status, dispatch alerts, POD collection"],
+    ["🗂️", "Document Vault",                  "Tax invoices, technical submittals, LEED compliance"],
+    ["🏷️", "Personalised Offers Feed",        "Account-specific pricing, LEED discounts, flash deals"],
+    ["✦",  "24×7 AI Support",                 "Instant answers, human escalation, SLA tracking"],
   ];
 
   return (
@@ -67,7 +87,7 @@ export default function LoginPage() {
           <div className="space-y-3">
             {features.map(([icon, title, desc]) => (
               <div
-                key={title}
+                key={title as string}
                 className="flex gap-3 items-center p-3 bg-white/[0.03] border border-white/10 rounded-lg"
               >
                 <span className="text-2xl">{icon}</span>
@@ -97,6 +117,12 @@ export default function LoginPage() {
         <p className="text-muted text-sm mb-6">Sign in to your account to continue</p>
 
         <div className="h-px bg-border my-6" />
+
+        {success && (
+          <div className="text-xs bg-green-50 text-green-700 border border-green-200 rounded px-3 py-2 mb-4">
+            ✓ {success}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -170,14 +196,37 @@ export default function LoginPage() {
         </Button>
 
         <p className="text-center text-xs text-muted mt-6">
-          New supplier?{" "}
-          <span className="text-gold font-semibold cursor-pointer">Request portal access →</span>
+          New customer?{" "}
+          <Link href="/register" className="text-gold font-semibold hover:underline">
+            Create an account →
+          </Link>
         </p>
 
-        <p className="text-center text-[10px] text-muted2 mt-4">
-          Demo credentials: danish@steelwood.ae / demo
-        </p>
+        {/* Demo credentials hint */}
+        <div className="mt-4 rounded-lg border border-border bg-bg/40 p-3 space-y-1">
+          <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Demo Credentials</p>
+          <p className="text-[10px] text-muted">Customer: danish@steelwood.ae / <strong>demo</strong></p>
+          <p className="text-[10px] text-muted">
+            Admin:{" "}
+            <button
+              type="button"
+              onClick={() => { setEmail("admin@steelwood.ae"); setPassword("admin1234"); }}
+              className="text-gold font-semibold hover:underline cursor-pointer"
+            >
+              admin@steelwood.ae / admin1234
+            </button>
+          </p>
+          <p className="text-[10px] text-muted">Registered: ahmed@alfuttaim-int.ae / <strong>customer1</strong></p>
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading…</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
