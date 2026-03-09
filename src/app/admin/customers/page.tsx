@@ -7,6 +7,8 @@ import { useUIStore } from "@/store/ui-store";
 
 const PAYMENT_TERMS = ["Net 30", "Net 45", "Net 60", "LC 60 Days", "LC 90 Days", "Advance Payment", "Open Credit"];
 const STATUSES = ["active", "pending", "suspended"] as const;
+const COUNTRIES = ["UAE", "KSA", "Qatar", "Kuwait", "Oman", "Bahrain", "Other GCC"];
+const BUSINESS_TYPES = ["Contractor", "Fit-Out", "Developer", "Retailer", "Other"];
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   active:    { bg: "#3fb95022", text: "#3fb950", border: "#3fb95044" },
@@ -14,11 +16,25 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   suspended: { bg: "#f8514922", text: "#f85149", border: "#f8514944" },
 };
 
+const EMPTY_FORM = {
+  companyName: "", tradeLicense: "", trn: "", country: "UAE", businessType: "Contractor",
+  contactName: "", email: "", phone: "",
+  password: "", confirmPassword: "",
+  creditLimit: "", paymentTerms: "Net 30", status: "active" as "active" | "pending" | "suspended",
+};
+
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<RegisteredCustomer[]>([]);
   const [selected, setSelected]   = useState<RegisteredCustomer | null>(null);
   const [filter,   setFilter]     = useState<"all" | "active" | "pending" | "suspended">("all");
   const [search,   setSearch]     = useState("");
+
+  // Create modal state
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm]             = useState({ ...EMPTY_FORM });
+  const [formError, setFormError]   = useState("");
+  const [creating, setCreating]     = useState(false);
+  const [showPass, setShowPass]     = useState(false);
 
   const {
     customerCreditLimits, setCustomerCreditLimit,
@@ -41,7 +57,6 @@ export default function AdminCustomersPage() {
 
   useEffect(() => { loadCustomers(); }, []);
 
-  // Merge server data with local overrides
   const merged = customers.map((c) => ({
     ...c,
     creditLimit:  customerCreditLimits[c.id]  ?? c.creditLimit,
@@ -67,19 +82,14 @@ export default function AdminCustomersPage() {
 
   const saveCustomer = async () => {
     if (!selected) return;
-
     const newLimit = parseFloat(draftLimit);
     if (isNaN(newLimit) || newLimit < 0) {
       addToast({ type: "error", title: "Invalid credit limit" });
       return;
     }
-
-    // Save locally (admin store)
     setCustomerCreditLimit(selected.id, newLimit);
     setCustomerStatus(selected.id, draftStatus);
     setCustomerPaymentTerms(selected.id, draftTerms);
-
-    // Also persist to server-side registry
     await fetch("/api/admin/customers", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -88,10 +98,54 @@ export default function AdminCustomersPage() {
         updates: { creditLimit: newLimit, status: draftStatus, paymentTerms: draftTerms },
       }),
     });
-
     loadCustomers();
     setSelected(null);
     addToast({ type: "success", title: `${selected.companyName} updated` });
+  };
+
+  const createCustomer = async () => {
+    setFormError("");
+    if (!form.companyName.trim()) { setFormError("Company name is required."); return; }
+    if (!form.contactName.trim()) { setFormError("Contact name is required."); return; }
+    if (!form.email.trim() || !form.email.includes("@")) { setFormError("Valid email is required."); return; }
+    if (!form.password || form.password.length < 6) { setFormError("Password must be at least 6 characters."); return; }
+    if (form.password !== form.confirmPassword) { setFormError("Passwords do not match."); return; }
+
+    setCreating(true);
+    try {
+      const res = await fetch("/api/admin/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: form.companyName,
+          tradeLicense: form.tradeLicense,
+          trn: form.trn,
+          contactName: form.contactName,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          country: form.country,
+          businessType: form.businessType,
+          creditLimit: form.creditLimit,
+          paymentTerms: form.paymentTerms,
+          status: form.status,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setFormError(data.error || "Failed to create account.");
+        setCreating(false);
+        return;
+      }
+
+      loadCustomers();
+      setShowCreate(false);
+      setForm({ ...EMPTY_FORM });
+      addToast({ type: "success", title: `Account created for ${form.companyName}`, message: `Login: ${form.email}` });
+    } catch {
+      setFormError("Unexpected error. Please try again.");
+    }
+    setCreating(false);
   };
 
   const counts = {
@@ -101,14 +155,54 @@ export default function AdminCustomersPage() {
     suspended: merged.filter((c) => c.status === "suspended").length,
   };
 
+  const field = (label: string, node: React.ReactNode) => (
+    <div>
+      <label className="block text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#8b949e" }}>
+        {label}
+      </label>
+      {node}
+    </div>
+  );
+
+  const inp = (key: keyof typeof form, placeholder?: string, type = "text") => (
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={form[key] as string}
+      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+      className="w-full h-9 px-3 rounded-lg text-sm"
+      style={{ background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }}
+    />
+  );
+
+  const sel = (key: keyof typeof form, options: string[]) => (
+    <select
+      value={form[key] as string}
+      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+      className="w-full h-9 px-3 rounded-lg text-sm"
+      style={{ background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }}
+    >
+      {options.map((o) => <option key={o}>{o}</option>)}
+    </select>
+  );
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Customer Management</h1>
-        <p className="text-sm mt-1" style={{ color: "#8b949e" }}>
-          Set credit limits, payment terms, and account status for each customer.
-        </p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Customer Management</h1>
+          <p className="text-sm mt-1" style={{ color: "#8b949e" }}>
+            Set credit limits, payment terms, and account status for each customer.
+          </p>
+        </div>
+        <button
+          onClick={() => { setShowCreate(true); setFormError(""); setForm({ ...EMPTY_FORM }); }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
+          style={{ background: "#C9A84C", color: "#0d1117" }}
+        >
+          + Create Customer
+        </button>
       </div>
 
       {/* Filter tabs */}
@@ -202,7 +296,7 @@ export default function AdminCustomersPage() {
           )}
         </div>
 
-        {/* Detail panel */}
+        {/* Edit panel */}
         {selected && (
           <div
             className="w-72 flex-shrink-0 rounded-xl p-5 space-y-5"
@@ -226,26 +320,20 @@ export default function AdminCustomersPage() {
 
             <div className="h-px" style={{ background: "#30363d" }} />
 
-            {/* Credit limit */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8b949e" }}>
                 Credit Limit (AED)
               </label>
               <input
-                type="number"
-                min="0"
-                step="1000"
+                type="number" min="0" step="1000"
                 value={draftLimit}
                 onChange={(e) => setDraftLimit(e.target.value)}
                 className="w-full h-9 px-3 rounded-lg text-sm font-semibold"
                 style={{ background: "#0d1117", border: "1px solid #30363d", color: "#C9A84C" }}
               />
-              <p className="text-[10px] mt-1" style={{ color: "#8b949e" }}>
-                Set to 0 to disable credit purchasing
-              </p>
+              <p className="text-[10px] mt-1" style={{ color: "#8b949e" }}>Set to 0 to disable credit purchasing</p>
             </div>
 
-            {/* Payment terms */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8b949e" }}>
                 Payment Terms
@@ -260,7 +348,6 @@ export default function AdminCustomersPage() {
               </select>
             </div>
 
-            {/* Status */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#8b949e" }}>
                 Account Status
@@ -305,6 +392,182 @@ export default function AdminCustomersPage() {
           </div>
         )}
       </div>
+
+      {/* ── Create Customer Modal ── */}
+      {showCreate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.75)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowCreate(false); }}
+        >
+          <div
+            className="w-full max-w-2xl rounded-2xl overflow-y-auto"
+            style={{ background: "#161b22", border: "1px solid #30363d", maxHeight: "90vh" }}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #30363d" }}>
+              <div>
+                <h2 className="text-lg font-bold text-white">Create Customer Account</h2>
+                <p className="text-xs mt-0.5" style={{ color: "#8b949e" }}>
+                  Admin-created account — you set the login email and password.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCreate(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-sm"
+                style={{ background: "#21262d", color: "#8b949e" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Section: Company */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#C9A84C" }}>
+                  Company Information
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {field("Company Name *", inp("companyName", "Al Futtaim Interiors LLC"))}
+                  {field("Business Type", sel("businessType", BUSINESS_TYPES))}
+                  {field("Trade Licence No.", inp("tradeLicense", "DED-123456"))}
+                  {field("TRN / VAT No.", inp("trn", "100234567800003"))}
+                  {field("Country", sel("country", COUNTRIES))}
+                </div>
+              </div>
+
+              <div className="h-px" style={{ background: "#21262d" }} />
+
+              {/* Section: Contact */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#C9A84C" }}>
+                  Contact Details
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {field("Contact Name *", inp("contactName", "Ahmed Al Rashid"))}
+                  {field("Phone", inp("phone", "+971 50 123 4567", "tel"))}
+                </div>
+              </div>
+
+              <div className="h-px" style={{ background: "#21262d" }} />
+
+              {/* Section: Login credentials */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#C9A84C" }}>
+                  Login Credentials
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {field("Login Email (ID) *", inp("email", "ahmed@company.ae", "email"))}
+                  <div />
+                  {field("Password *",
+                    <div className="relative">
+                      <input
+                        type={showPass ? "text" : "password"}
+                        placeholder="Min. 6 characters"
+                        value={form.password}
+                        onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                        className="w-full h-9 px-3 pr-10 rounded-lg text-sm"
+                        style={{ background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPass((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
+                        style={{ color: "#8b949e" }}
+                      >
+                        {showPass ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  )}
+                  {field("Confirm Password *",
+                    <input
+                      type={showPass ? "text" : "password"}
+                      placeholder="Re-enter password"
+                      value={form.confirmPassword}
+                      onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-lg text-sm"
+                      style={{ background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3" }}
+                    />
+                  )}
+                </div>
+                <p className="text-xs mt-2 px-3 py-2 rounded-lg" style={{ background: "#0d1117", color: "#8b949e", border: "1px solid #21262d" }}>
+                  Share these credentials securely with the customer. They can use this email + password to log in to the portal.
+                </p>
+              </div>
+
+              <div className="h-px" style={{ background: "#21262d" }} />
+
+              {/* Section: Account settings */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#C9A84C" }}>
+                  Account Settings
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  {field("Credit Limit (AED)",
+                    <input
+                      type="number" min="0" step="10000"
+                      placeholder="0"
+                      value={form.creditLimit}
+                      onChange={(e) => setForm((f) => ({ ...f, creditLimit: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-lg text-sm"
+                      style={{ background: "#0d1117", border: "1px solid #30363d", color: "#C9A84C" }}
+                    />
+                  )}
+                  {field("Payment Terms", sel("paymentTerms", PAYMENT_TERMS))}
+                  {field("Account Status",
+                    <div className="flex gap-1">
+                      {STATUSES.map((s) => {
+                        const sc = STATUS_COLORS[s];
+                        return (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, status: s }))}
+                            className="flex-1 py-2 rounded-lg text-xs font-semibold capitalize"
+                            style={{
+                              background: form.status === s ? sc.bg : "transparent",
+                              color:      form.status === s ? sc.text : "#8b949e",
+                              border:     `1px solid ${form.status === s ? sc.border : "#30363d"}`,
+                            }}
+                          >
+                            {s}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Error */}
+              {formError && (
+                <p className="text-sm px-3 py-2 rounded-lg" style={{ background: "#f8514922", color: "#f85149", border: "1px solid #f8514944" }}>
+                  {formError}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setShowCreate(false)}
+                  className="px-5 py-2 rounded-lg text-sm font-semibold"
+                  style={{ background: "#21262d", color: "#8b949e" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={createCustomer}
+                  disabled={creating}
+                  className="px-6 py-2 rounded-lg text-sm font-semibold"
+                  style={{ background: creating ? "#a07d3a" : "#C9A84C", color: "#0d1117", opacity: creating ? 0.8 : 1 }}
+                >
+                  {creating ? "Creating…" : "Create Account"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
