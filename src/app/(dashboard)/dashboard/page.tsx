@@ -280,6 +280,30 @@ export default function DashboardPage() {
         </h1>
       </div>
 
+      {/* Tagline */}
+      <div className="flex items-center justify-center gap-[6px] mb-[14px] select-none animate-hero-in" style={{ animationDelay: ".04s" }}>
+        <span
+          style={{
+            width: 6, height: 6, borderRadius: "50%", background: "#3d7a52", flexShrink: 0,
+            boxShadow: "0 0 0 0 rgba(61,122,82,0.5)",
+            animation: "pulse-green 2s infinite",
+          }}
+        />
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3d7a52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <path d="M17 8C8 10 5.9 16.17 3.82 19.34l1.23.66L12 14l-1 6s5-2 7-8c0 0 3 1 3 5 2-3 2.5-8-4-13z"/>
+        </svg>
+        <span style={{ fontSize: 12, color: "#3d7a52", fontWeight: 700, letterSpacing: ".05em", textTransform: "uppercase" }}>
+          Your 24/7 Sustainable Materials Store
+        </span>
+        <style>{`
+          @keyframes pulse-green {
+            0%   { box-shadow: 0 0 0 0 rgba(61,122,82,.5); }
+            70%  { box-shadow: 0 0 0 5px rgba(61,122,82,0); }
+            100% { box-shadow: 0 0 0 0 rgba(61,122,82,0); }
+          }
+        `}</style>
+      </div>
+
       {/* Agent card */}
       <div
         className="w-full"
