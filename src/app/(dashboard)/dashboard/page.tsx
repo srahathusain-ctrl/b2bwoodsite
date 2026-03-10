@@ -270,8 +270,7 @@ export default function DashboardPage() {
       />
 
       {/* Greeting row */}
-      <div className="flex items-center gap-[14px] mb-[30px] animate-hero-in" style={{ animationDelay: "0s" }}>
-        <span className="animate-rot-slow select-none" style={{ fontSize: 42, lineHeight: 1, color: "#c45e38", fontWeight: 300 }}>✳</span>
+      <div className="flex items-center justify-center gap-[14px] mb-[18px] animate-hero-in" style={{ animationDelay: "0s" }}>
         <h1
           className="font-display"
           style={{ fontSize: "clamp(28px,3.6vw,48px)", fontWeight: 600, letterSpacing: "-.025em", color: "#1a1612", lineHeight: 1.1 }}
@@ -281,7 +280,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Tagline */}
-      <div className="flex items-center justify-center gap-[6px] mb-[14px] select-none animate-hero-in" style={{ animationDelay: ".04s" }}>
+      <div className="flex items-center justify-center gap-[8px] mb-[14px] select-none animate-hero-in" style={{ animationDelay: ".04s" }}>
+        <span className="animate-rot-slow select-none" style={{ fontSize: 22, lineHeight: 1, color: "#c45e38", fontWeight: 300 }}>✳</span>
         <span
           style={{
             width: 6, height: 6, borderRadius: "50%", background: "#3d7a52", flexShrink: 0,
@@ -289,10 +289,10 @@ export default function DashboardPage() {
             animation: "pulse-green 2s infinite",
           }}
         />
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3d7a52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3d7a52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
           <path d="M17 8C8 10 5.9 16.17 3.82 19.34l1.23.66L12 14l-1 6s5-2 7-8c0 0 3 1 3 5 2-3 2.5-8-4-13z"/>
         </svg>
-        <span style={{ fontSize: 12, color: "#3d7a52", fontWeight: 700, letterSpacing: ".05em", textTransform: "uppercase" }}>
+        <span style={{ fontSize: 14, color: "#3d7a52", fontWeight: 700, letterSpacing: ".05em", textTransform: "uppercase" }}>
           Your 24/7 Sustainable Materials Store
         </span>
         <style>{`
