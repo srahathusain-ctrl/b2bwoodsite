@@ -65,10 +65,21 @@ function LoginContent() {
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-gold/5 blur-3xl" />
 
         <div className="relative max-w-md">
-          <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-2 mb-8">
+          <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-2 mb-3">
             <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
             <span className="text-xs font-bold text-gold uppercase tracking-wider">
               Enterprise B2B Platform
+            </span>
+          </div>
+
+          {/* Tagline chip */}
+          <div className="inline-flex items-center gap-2 mb-8" style={{ background: "rgba(61,122,82,0.12)", border: "1px solid rgba(61,122,82,0.25)", borderRadius: 999, padding: "6px 14px" }}>
+            <span className="w-[6px] h-[6px] rounded-full flex-shrink-0" style={{ background: "#3d7a52", animation: "pulse 2s infinite" }} />
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3d7a52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 8C8 10 5.9 16.17 3.82 19.34l1.23.66L12 14l-1 6s5-2 7-8c0 0 3 1 3 5 2-3 2.5-8-4-13z"/>
+            </svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#3d7a52", letterSpacing: ".06em", textTransform: "uppercase" }}>
+              Your 24/7 Sustainable Materials Store
             </span>
           </div>
 

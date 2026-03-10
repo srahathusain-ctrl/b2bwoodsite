@@ -26,6 +26,32 @@ export default function TopBar() {
       className="flex items-center justify-center px-[14px] gap-[10px] flex-shrink-0 relative border-b border-border"
       style={{ height: 44, zIndex: 20, background: "#f0ece4" }}
     >
+      {/* Center: tagline */}
+      <div className="flex items-center gap-[6px] select-none">
+        <span
+          className="w-[6px] h-[6px] rounded-full flex-shrink-0"
+          style={{
+            background: "#3d7a52",
+            boxShadow: "0 0 0 0 rgba(61,122,82,0.5)",
+            animation: "pulse-green 2s infinite",
+          }}
+        />
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3d7a52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <path d="M17 8C8 10 5.9 16.17 3.82 19.34l1.23.66L12 14l-1 6s5-2 7-8c0 0 3 1 3 5 2-3 2.5-8-4-13z"/>
+        </svg>
+        <span style={{ fontSize: 11, color: "#5a5248", fontWeight: 600, letterSpacing: ".02em" }}>
+          Your 24/7 Sustainable Materials Store
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes pulse-green {
+          0%   { box-shadow: 0 0 0 0 rgba(61,122,82,.5); }
+          70%  { box-shadow: 0 0 0 5px rgba(61,122,82,0); }
+          100% { box-shadow: 0 0 0 0 rgba(61,122,82,0); }
+        }
+      `}</style>
+
       {/* Right: actions */}
       <div className="absolute right-[14px] flex items-center gap-[5px]">
         {/* Language pill */}
